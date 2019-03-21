@@ -1,27 +1,17 @@
 import 'package:flutter/material.dart';
-
-//检测Android机并适配沉浸式
-import 'dart:io';
-import 'package:flutter/services.dart';
-
-//English words 包生成文本来替换字符串
-import 'package:english_words/english_words.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 
 const String name1 = 'flutter_refresh';
-const String name2 = 'flutter_refresh_title';
 
-
-class RandomWords extends StatefulWidget {
+class RefreshWidget extends StatefulWidget {
   @override
   createState() {
-    return new RandomWordsState();
+    return new RefreshWidgetState();
   }
 }
-
 //生成ListView
-class RandomWordsState extends State<RandomWords> {
+class RefreshWidgetState extends State<RefreshWidget> {
   bool isFirstLoadData = true;
   final _font = const TextStyle(fontSize: 15.0);
   final _save = new Set<String>();
@@ -38,7 +28,6 @@ class RandomWordsState extends State<RandomWords> {
     //插入到渲染树时调用，只执行一次。（类似Android Fragment的onCreateView函数）
     super.initState();
     print('initState');
-
     testPrint();
     init();
   }
@@ -337,6 +326,9 @@ class RandomWordsState extends State<RandomWords> {
     );
   }
 
+
+
+
 //生成列表内容，分割线
 //  Widget _buildSuggestions() {
 //    print('_buildSuggestions重复调用');
@@ -386,24 +378,5 @@ class RandomWordsState extends State<RandomWords> {
 }
 
 
-//判断如果是Android版本的话 设置Android状态栏透明沉浸式
-void checkPhoneType() {
-  if (Platform.isAndroid) {
-    print('devices is Android');
-    //写在组件渲染之后，是为了在渲染后进行设置赋值，覆盖状态栏。
-    SystemUiOverlayStyle systemUiOverlayStyle =
-    SystemUiOverlayStyle(statusBarColor: Colors.transparent);
-    SystemChrome.setSystemUIOverlayStyle(systemUiOverlayStyle);
-  } else if (Platform.isIOS) {
-    print('devices is iOS');
-  }
-}
 
-class SecondScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return new Scaffold(
-      body: new RandomWords(),
-    );
-  }
-}
+

@@ -4,31 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:english_words/english_words.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_layout_test/network/network.dart';
+import 'package:flutter_layout_test/other/other.dart';
 import 'package:flutter_layout_test/refresh/refresh.dart';
+import 'package:flutter_layout_test/widget/button.dart';
+import 'package:flutter_layout_test/widget/image.dart';
+import 'package:flutter_layout_test/widget/layout.dart';
+import 'package:flutter_layout_test/widget/text.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
+//常量定义
 const String name1 = 'flutter_widget';
-const String name2 = 'flutter_widget_title';
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: name2,
-      theme: new ThemeData(
-        //状态栏颜色
-        primaryColor: Colors.greenAccent,
-        accentColor: const Color(0xFF00FFFF),
-        hintColor: Colors.blue,
-      ),
-      home: MyHomePage(title: 'Flutter Test Page'),
-      routes: <String, WidgetBuilder>{
-        // 这里可以定义静态路由，不能传递参数
-        '/router/refresh/refresh': (_) => new SecondScreen(),
-      },
-    );
-  }
-}
+const String taskTitle = 'Flutter Test Layout Title';
 
 //主函数
 void main() {
@@ -52,7 +39,46 @@ void checkPhoneType() {
   }
 }
 
+class MyApp extends StatelessWidget {
+  //StatelessWidget
+  //接收外部数据
+  //执行部件构造方法
+  //当传入数据改变时会重新渲染UI
+
+  //变化需要重新创建
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: taskTitle, //唤出任务管理器title
+      theme: new ThemeData(
+        //状态栏颜色
+        primaryColor: Colors.greenAccent,
+        accentColor: const Color(0xFF00FFFF),
+        hintColor: Colors.blue,
+      ),
+      home: MyHomePage(),
+      routes: <String, WidgetBuilder>{
+        // 定义静态路由，不能传递参数
+        '/router/refresh/refresh': (_) => new RefreshWidget(),
+        '/router/widget/text': (_) => new TextWidget(),
+        '/router/widget/image': (_) => new ImageWidget(),
+        '/router/widget/button': (_) => new ButtonWidget(),
+        '/router/widget/layout': (_) => new LayoutWidget(),
+        '/router/ohter/ohter': (_) => new OtherWidget(),
+        '/router/network/network': (_) => new NetworkWidget(),
+      },
+    );
+  }
+}
+
 class MyHomePage extends StatefulWidget {
+  //StatefulWidget
+  //接收外部数据
+  //执行部件构造方法和状态初始化方法
+  //当传入数据和本类数据改变时都会重新渲染UI
+  //如果您希望通过HTTP动态请求的数据更改用户界面，则必须使用StatefulWidget，并告诉Flutter框架该widget的状态已更新，以便可以更新该widget。
+  //setState触发UI重绘
+
   MyHomePage({Key key, this.title}) : super(key: key);
   final String title;
 
@@ -61,26 +87,18 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  Column buildButtonColumn(IconData icon, String label) {
-    Color color = Theme.of(context).primaryColor;
+  String lineText = "大虚线";
 
-    return new Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        new Icon(icon, color: color),
-        new Container(
-          margin: const EdgeInsets.only(top: 8.0),
-          child: new Text(
-            label,
-            style: new TextStyle(
-              fontSize: 12.0,
-              fontWeight: FontWeight.w400,
-              color: color,
-            ),
-          ),
-        ),
-      ],
+  //生成MaterialButton
+  MaterialButton buildButton(String value, Color textColor, Color background,
+      String route) {
+    return new MaterialButton(
+      child: Text(value),
+      color: background,
+      textColor: textColor,
+      onPressed: () {
+        openView(route);
+      },
     );
   }
 
@@ -91,223 +109,28 @@ class _MyHomePageState extends State<MyHomePage> {
           title: Text(name1),
         ),
         body: new ListView(
+          physics: BouncingScrollPhysics(), //回弹效果
           children: <Widget>[
-            //Text用法
-            //TextStyle属性
-            //inherit:默认为true，设置为false时候表示不显示
-            //color:字体颜色
-            //fontSize:字体大小，默认是14.0的
-            //fontWeight:字体的粗体
-            //fontStyle:normal正常:italic 斜体
-            //letterSpacing:字符间距
-            //wordSpacing:单词间距
-            //textBaseline:
-            // alphabetic：用于对齐字母字符底部的水平线
-            // ideographic：用于对齐表意字符的水平线
-            //height:用在Text控件上的时候，会乘以fontSize做为行高
-            //locale:国际化
-            //foreground:用paint来渲染text，也可以用他来改变字体颜色等
-            //background:背景
-            //decoration:辅助线的添加规则
-            //none:不添加
-            //underline:在每行文本下面画一条线
-            //overline:在每行文本上方画一条线
-            //lineThrough:在每行文字中画一条线
-            //decorationColor:辅助线的颜色
-            //decorationStyle:辅助线的样式
-            //solid:画一条实线
-            //double:画两条线
-            //dotted:画一条大虚线
-            //dashed:画一条小虚线
-            //wavy:画一条正弦线（波浪线）
-            //fontFamily:自定义字体时需要使用
-            new Text(
-              '大虚线',
-              style: new TextStyle(
-                  color: Colors.blue,
-                  fontSize: 30,
-                  fontWeight: FontWeight.w500,
-                  fontStyle: FontStyle.italic,
-                  decoration: TextDecoration.underline,
-                  decorationColor: Colors.red,
-                  decorationStyle: TextDecorationStyle.dotted),
-            ),
-            new Text(
-              '小虚线',
-              style: new TextStyle(
-                  color: Colors.red,
-                  fontSize: 25,
-                  fontStyle: FontStyle.italic,
-                  decoration: TextDecoration.underline,
-                  decorationColor: Colors.green,
-                  decorationStyle: TextDecorationStyle.dashed),
-            ),
-            new Text(
-              '正弦线（波浪线）',
-              style: new TextStyle(
-                  color: Colors.green,
-                  fontSize: 20,
-                  fontStyle: FontStyle.italic,
-                  decoration: TextDecoration.underline,
-                  decorationColor: Colors.blue,
-                  decorationStyle: TextDecorationStyle.wavy),
-            ),
-
-            //Image用法
-            //加载网络图片：Image.network
-            //加载资源图片：Image.asset
-            //加载本地图片：Image.file
-            //加载资源图片：Image.asset
-            //加载Uint8List资源图片：Image.memory
-            //fit：BoxFit用法
-            //BoxFit.fill：全图显示，显示可能拉伸，充满
-            //BoxFit.contain：全图显示，显示原比例，不需充满
-            //BoxFit.cover：显示可能拉伸，可能裁剪，充满
-            //BoxFit.fitWidth：显示可能拉伸，可能裁剪，宽度充满
-            //BoxFit.fitHeight：显示可能拉伸，可能裁剪，高度充满
-            //BoxFit.none：不指定
-            //BoxFit.scaleDown：效果和contain差不多,但是此属性不允许显示超过源图片大小，可小不可大
-            new Image.asset(
-              'images/flutter.jpg',
-              fit: BoxFit.fitHeight,
-              alignment: Alignment.center,
-            ),
-            new Image.asset(
-              'images/flutter.jpg',
-              fit: BoxFit.fitHeight,
-              alignment: Alignment.center,
-              //color&colorBlendMode配合使用（混合模式）
-              color: Colors.redAccent,
-              colorBlendMode: BlendMode.colorBurn,
-            ),
-            new Image.asset(
-              'images/flutter2.jpg',
-              fit: BoxFit.fitWidth,
-              //alignment：摆放位置
-              alignment: Alignment.center,
-            ),
-
-            //CachedNetworkImage用法(如果这个图片已经被加载了，或者已经存在内存中，那么placeholder图片将不会显示)
-            //fit:同上
-            //fadeInCurve:  淡入动画(曲线)
-            //fadeInDuration:  淡入动画时间
-            //fadeOutCurve: 淡出动画(曲线)
-            //fadeOutDuration: 淡出动画时间
-            //imageUrl: 网络图片地址
-            //placeholder: 占位图地址（可以使用加载进度条）
-            //errorWidget: 错误图地址
-
-            //Curves用法:
-
-            new Container(
-              height: 200,
-              margin: EdgeInsets.fromLTRB(10, 50, 10, 20),
-              child: new Center(
-                child: new CachedNetworkImage(
-                  fit: BoxFit.fitWidth,
-                  fadeInCurve: Curves.ease,
-                  fadeInDuration: Duration(seconds: 2),
-                  fadeOutCurve: Curves.ease,
-                  fadeOutDuration: Duration(seconds: 2),
-                  imageUrl:
-                      'https://flutter.io/images/homepage/header-illustration.png',
-                  placeholder: (context, url) =>
-                      new CircularProgressIndicator(),
-                  errorWidget: (context, url, error) => new Icon(Icons.error),
-                ),
-              ),
-            ),
-
-            // 本地文件图片(需要权限)
-//            new Image.file(
-//                new File("/storage/emulated/0/Download/flutter3.jpeg")),
-            // Uint8List图片
-//            new Image.memory(bytes),
-
-            titleWidget(),
-            centerWidget(),
-            bottomWidget(),
-            new MaterialButton(
-              child: Text("跳转页面"),
-              color: Colors.greenAccent,
-              textColor: Colors.white,
-              onPressed: openView,
-            )
+            buildButton("RefreshWidget", Colors.white, Colors.deepOrangeAccent,
+                '/router/refresh/refresh'),
+            buildButton("TextWidget", Colors.white, Colors.deepOrangeAccent,
+                '/router/widget/text'),
+            buildButton("ImageWidget", Colors.white, Colors.deepOrangeAccent,
+                '/router/widget/image'),
+            buildButton("ButtonWidget", Colors.white, Colors.deepOrangeAccent,
+                '/router/widget/button'),
+            buildButton("LayoutWidget", Colors.white, Colors.deepOrangeAccent,
+                '/router/widget/layout'),
+            buildButton("OtherWidget", Colors.white, Colors.deepOrangeAccent,
+                '/router/ohter/ohter'),
+            buildButton("NetworkWidget", Colors.white, Colors.deepOrangeAccent,
+                '/router/network/network'),
           ],
         ));
   }
 
-  Widget centerWidget() {
-    return new Container(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: new Row(
-// 1、MainAxisAlignment.start，将子控件放在主轴的起始位置。
-// 2、MainAxisAlignment.end，将子控件放在主轴末尾。
-// 3、MainAxisAlignment.center，将子控件放在主轴中间位置。
-// 4、MainAxisAlignment.spaceBetween 将主轴方向上的空白区域等分，使得子孩子控件之间的空白区域相等，// 两端的子孩子控件都靠近首尾，没有间隙。
-// 5、MainAxisAlignment.spaceAround 将主轴方向上的空白区域等分，使得子孩子控件之间的空白区域相等，// 两端的子孩子控件都靠近首尾，首尾子孩子控件的空白区域为1/2。
-// 6、MainAxisAlignment.spaceEvenly将主轴方向上的空白区域等分，使得子孩子控件之间的空白区域相等，包括首尾。
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: <Widget>[
-          buildButtonColumn(Icons.call, 'CALL'),
-          buildButtonColumn(Icons.near_me, 'ROUTE'),
-          buildButtonColumn(Icons.share, 'SHARE'),
-        ],
-      ),
-    );
-  }
-
-  Widget titleWidget() {
-    return new Container(
-      padding: const EdgeInsets.all(32.0),
-      child: new Row(
-        children: [
-          new Expanded(
-            child: new Column(
-              crossAxisAlignment: CrossAxisAlignment.start, //左对齐
-              children: [
-                new Container(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: new Text(
-                    'Oeschinen Lake Campground',
-                    style: new TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                new Text(
-                  'Kandersteg, Switzerland',
-                  style: new TextStyle(
-                    color: Colors.grey[500],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          new Icon(
-            Icons.star,
-            color: Colors.red[500],
-          ),
-          new Text('41'),
-        ],
-      ),
-    );
-  }
-
-  Widget bottomWidget() {
-    return new Container(
-      padding: const EdgeInsets.all(32.0),
-      child: new Text(
-        '''
-Lake Oeschinen lies at the foot of the Blüemlisalp in the Bernese Alps. Situated 1,578 meters above sea level, it is one of the larger Alpine Lakes. A gondola ride from Kandersteg, followed by a half-hour walk through pastures and pine forest, leads you to the lake, which warms to 20 degrees Celsius in the summer. Activities enjoyed here include rowing, and riding the summer toboggan run.
-        ''',
-        softWrap: true,
-      ),
-    );
-  }
-
-  openView() {
-    Navigator.of(context).pushNamed('/router/refresh/refresh');
+  openView(String route) {
+    Navigator.of(context).pushNamed(route);
   }
 }
 
@@ -332,11 +155,5 @@ Lake Oeschinen lies at the foot of the Blüemlisalp in the Bernese Alps. Situate
 //resizeToAvoidBottomPadding： 控制界面内容 body是否重新布局来避免底部被覆盖了，比如当键盘显示的时候，重新布局避免被键盘盖住内容。默认值为 true。
 
 
-
-
-//布局构建（垂直排列，水平排列）  go on
-//网络请求（数据加载）
-//数据传递
-//原生&flutter互掉
 
 
