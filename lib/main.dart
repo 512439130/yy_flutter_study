@@ -2,19 +2,53 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:english_words/english_words.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_layout_test/refresh/refresh.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
-void main() => runApp(MyApp());
+const String name1 = 'flutter_widget';
+const String name2 = 'flutter_widget_title';
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+      title: name2,
+      theme: new ThemeData(
+        //状态栏颜色
+        primaryColor: Colors.greenAccent,
+        accentColor: const Color(0xFF00FFFF),
+        hintColor: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'Flutter Test Page'),
+      routes: <String, WidgetBuilder>{
+        // 这里可以定义静态路由，不能传递参数
+        '/router/refresh/refresh': (_) => new SecondScreen(),
+      },
     );
+  }
+}
+
+//主函数
+void main() {
+  //MaterialApp组件渲染后
+  //run main
+  runApp(MyApp());
+  //判断如果是Android版本的话 设置Android状态栏透明沉浸式
+  checkPhoneType();
+}
+
+//判断如果是Android版本的话 设置Android状态栏透明沉浸式
+void checkPhoneType() {
+  if (Platform.isAndroid) {
+    print('devices is Android');
+    //写在组件渲染之后，是为了在渲染后进行设置赋值，覆盖状态栏。
+    SystemUiOverlayStyle systemUiOverlayStyle =
+        SystemUiOverlayStyle(statusBarColor: Colors.transparent);
+    SystemChrome.setSystemUIOverlayStyle(systemUiOverlayStyle);
+  } else if (Platform.isIOS) {
+    print('devices is iOS');
   }
 }
 
@@ -28,9 +62,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   Column buildButtonColumn(IconData icon, String label) {
-    Color color = Theme
-        .of(context)
-        .primaryColor;
+    Color color = Theme.of(context).primaryColor;
 
     return new Column(
       mainAxisSize: MainAxisSize.min,
@@ -56,14 +88,10 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text(widget.title),
+          title: Text(name1),
         ),
         body: new ListView(
-
-
           children: <Widget>[
-
-
             //Text用法
             //TextStyle属性
             //inherit:默认为true，设置为false时候表示不显示
@@ -96,14 +124,13 @@ class _MyHomePageState extends State<MyHomePage> {
             new Text(
               '大虚线',
               style: new TextStyle(
-                color: Colors.blue,
-                fontSize: 30,
-                fontWeight: FontWeight.w500,
-                fontStyle: FontStyle.italic,
-                decoration: TextDecoration.underline,
-                decorationColor: Colors.red,
-                decorationStyle: TextDecorationStyle.dotted
-              ),
+                  color: Colors.blue,
+                  fontSize: 30,
+                  fontWeight: FontWeight.w500,
+                  fontStyle: FontStyle.italic,
+                  decoration: TextDecoration.underline,
+                  decorationColor: Colors.red,
+                  decorationStyle: TextDecorationStyle.dotted),
             ),
             new Text(
               '小虚线',
@@ -113,8 +140,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   fontStyle: FontStyle.italic,
                   decoration: TextDecoration.underline,
                   decorationColor: Colors.green,
-                  decorationStyle: TextDecorationStyle.dashed
-              ),
+                  decorationStyle: TextDecorationStyle.dashed),
             ),
             new Text(
               '正弦线（波浪线）',
@@ -124,8 +150,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   fontStyle: FontStyle.italic,
                   decoration: TextDecoration.underline,
                   decorationColor: Colors.blue,
-                  decorationStyle: TextDecorationStyle.wavy
-              ),
+                  decorationStyle: TextDecorationStyle.wavy),
             ),
 
             //Image用法
@@ -178,15 +203,16 @@ class _MyHomePageState extends State<MyHomePage> {
               height: 200,
               margin: EdgeInsets.fromLTRB(10, 50, 10, 20),
               child: new Center(
-                child:
-                new CachedNetworkImage(
+                child: new CachedNetworkImage(
                   fit: BoxFit.fitWidth,
                   fadeInCurve: Curves.ease,
-                  fadeInDuration:Duration(seconds: 2),
+                  fadeInDuration: Duration(seconds: 2),
                   fadeOutCurve: Curves.ease,
-                  fadeOutDuration:Duration(seconds: 2),
-                  imageUrl: 'https://flutter.io/images/homepage/header-illustratio1n.png',
-                  placeholder: (context, url) =>new CircularProgressIndicator(),
+                  fadeOutDuration: Duration(seconds: 2),
+                  imageUrl:
+                      'https://flutter.io/images/homepage/header-illustration.png',
+                  placeholder: (context, url) =>
+                      new CircularProgressIndicator(),
                   errorWidget: (context, url, error) => new Icon(Icons.error),
                 ),
               ),
@@ -201,6 +227,12 @@ class _MyHomePageState extends State<MyHomePage> {
             titleWidget(),
             centerWidget(),
             bottomWidget(),
+            new MaterialButton(
+              child: Text("跳转页面"),
+              color: Colors.greenAccent,
+              textColor: Colors.white,
+              onPressed: openView,
+            )
           ],
         ));
   }
@@ -273,9 +305,11 @@ Lake Oeschinen lies at the foot of the Blüemlisalp in the Bernese Alps. Situate
       ),
     );
   }
+
+  openView() {
+    Navigator.of(context).pushNamed('/router/refresh/refresh');
+  }
 }
-
-
 
 //需要注意的细节点
 //如果需要使用新库，先在pubspec.yaml中导包，（如果不知道包名就在"https://pub.flutter-io.cn/packages"搜索），
@@ -285,19 +319,24 @@ Lake Oeschinen lies at the foot of the Blüemlisalp in the Bernese Alps. Situate
 
 //使用Container(Widget)包裹后:添加填充，边距，边框或背景色
 
-
 //Scaffold实现了基本的 Material 布局
 //Scaffold 提供展示抽屉（drawers，比如：左边栏）、通知（snack bars） 以及 底部按钮（bottom sheets）
 //Scaffold属性说明：
-  //appBar：显示在界面顶部的一个 AppBar
-  //body：当前界面所显示的主要内容
-  //floatingActionButton： 在 Material 中定义的一个功能按钮。
-  //persistentFooterButtons：固定在下方显示的按钮。https://material.google.com/components/buttons.html#buttons-persistent-footer-buttons
-  //drawer：侧边栏控件
-  //bottomNavigationBar：显示在底部的导航栏按钮栏。可以查看文档：Flutter学习之制作底部菜单导航
-  //backgroundColor：背景颜色
-  //resizeToAvoidBottomPadding： 控制界面内容 body是否重新布局来避免底部被覆盖了，比如当键盘显示的时候，重新布局避免被键盘盖住内容。默认值为 true。
+//appBar：显示在界面顶部的一个 AppBar
+//body：当前界面所显示的主要内容
+//floatingActionButton： 在 Material 中定义的一个功能按钮。
+//persistentFooterButtons：固定在下方显示的按钮。https://material.google.com/components/buttons.html#buttons-persistent-footer-buttons
+//drawer：侧边栏控件
+//bottomNavigationBar：显示在底部的导航栏按钮栏。可以查看文档：Flutter学习之制作底部菜单导航
+//backgroundColor：背景颜色
+//resizeToAvoidBottomPadding： 控制界面内容 body是否重新布局来避免底部被覆盖了，比如当键盘显示的时候，重新布局避免被键盘盖住内容。默认值为 true。
 
 
+
+
+//布局构建（垂直排列，水平排列）  go on
+//网络请求（数据加载）
+//数据传递
+//原生&flutter互掉
 
 
