@@ -11,7 +11,9 @@ import 'package:flutter_layout_test/widget/button.dart';
 import 'package:flutter_layout_test/widget/image.dart';
 import 'package:flutter_layout_test/widget/layout.dart';
 import 'package:flutter_layout_test/widget/text.dart';
+import 'package:flutter_layout_test/work/work.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:oktoast/oktoast.dart';
 
 //常量定义
 const String name1 = 'flutter_widget';
@@ -48,25 +50,29 @@ class MyApp extends StatelessWidget {
   //变化需要重新创建
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: taskTitle, //唤出任务管理器title
-      theme: new ThemeData(
-        //状态栏颜色
-        primaryColor: Colors.greenAccent,
-        accentColor: const Color(0xFF00FFFF),
-        hintColor: Colors.blue,
+    return OKToast(
+      /// set toast style, optional
+      child: MaterialApp(
+        title: taskTitle, //唤出任务管理器title
+        theme: new ThemeData(
+          //状态栏颜色
+          primaryColor: Colors.greenAccent,
+          accentColor: const Color(0xFF00FFFF),
+          hintColor: Colors.blue,
+        ),
+        home: MyHomePage(),
+        routes: <String, WidgetBuilder>{
+          // 定义静态路由，不能传递参数
+          '/router/refresh/refresh': (_) => new RefreshWidget(),
+          '/router/widget/text': (_) => new TextWidget(),
+          '/router/widget/image': (_) => new ImageWidget(),
+          '/router/widget/button': (_) => new ButtonWidget(),
+          '/router/widget/layout': (_) => new LayoutWidget(),
+          '/router/ohter/ohter': (_) => new OtherWidget(),
+          '/router/network/network': (_) => new NetworkWidget(),
+          '/router/work/work': (_) => new WorkWidget(),
+        },
       ),
-      home: MyHomePage(),
-      routes: <String, WidgetBuilder>{
-        // 定义静态路由，不能传递参数
-        '/router/refresh/refresh': (_) => new RefreshWidget(),
-        '/router/widget/text': (_) => new TextWidget(),
-        '/router/widget/image': (_) => new ImageWidget(),
-        '/router/widget/button': (_) => new ButtonWidget(),
-        '/router/widget/layout': (_) => new LayoutWidget(),
-        '/router/ohter/ohter': (_) => new OtherWidget(),
-        '/router/network/network': (_) => new NetworkWidget(),
-      },
     );
   }
 }
@@ -90,8 +96,8 @@ class _MyHomePageState extends State<MyHomePage> {
   String lineText = "大虚线";
 
   //生成MaterialButton
-  MaterialButton buildButton(String value, Color textColor, Color background,
-      String route) {
+  MaterialButton buildButton(
+      String value, Color textColor, Color background, String route) {
     return new MaterialButton(
       child: Text(value),
       color: background,
@@ -125,6 +131,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 '/router/ohter/ohter'),
             buildButton("NetworkWidget", Colors.white, Colors.deepOrangeAccent,
                 '/router/network/network'),
+            buildButton("WorkWidget", Colors.white, Colors.deepOrangeAccent,
+                '/router/work/work'),
           ],
         ));
   }
@@ -153,7 +161,3 @@ class _MyHomePageState extends State<MyHomePage> {
 //bottomNavigationBar：显示在底部的导航栏按钮栏。可以查看文档：Flutter学习之制作底部菜单导航
 //backgroundColor：背景颜色
 //resizeToAvoidBottomPadding： 控制界面内容 body是否重新布局来避免底部被覆盖了，比如当键盘显示的时候，重新布局避免被键盘盖住内容。默认值为 true。
-
-
-
-

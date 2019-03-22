@@ -14,6 +14,7 @@ dependencies:
   english_words: ^3.1.0
   flutter_spinkit: ^3.0.0
   cached_network_image: ^0.7.0
+  oktoast: ^2.1.6
 
 dev_dependencies:
   flutter_test:
@@ -24,6 +25,17 @@ flutter:
   assets:
         - images/flutter.jpg
         - images/flutter2.jpg
+
+        - images/icon_image_delete.png
+        - images/2.0x/icon_image_delete.png
+        - images/3.0x/icon_image_delete.png
+
+        - images/icon_image_default.png
+
+        - images/icon_gridview_test1.png
+        - images/icon_gridview_test2.png
+        - images/icon_gridview_test3.png
+        - images/icon_add.png
 
 
 

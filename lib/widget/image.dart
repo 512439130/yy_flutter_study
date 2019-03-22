@@ -94,6 +94,25 @@ class _ImageWidgetState extends State<ImageWidget> {
               alignment: Alignment.center,
             ),
 
+            new Image.asset(
+              'images/icon_gridview_test1.png',
+              fit: BoxFit.fitWidth,
+              //alignment：摆放位置
+              alignment: Alignment.center,
+            ),
+            new Image.asset(
+              'images/icon_gridview_test2.png',
+              fit: BoxFit.fitWidth,
+              //alignment：摆放位置
+              alignment: Alignment.center,
+            ),
+            new Image.asset(
+              'images/icon_gridview_test3.png',
+              fit: BoxFit.fitWidth,
+              //alignment：摆放位置
+              alignment: Alignment.center,
+            ),
+
             //CachedNetworkImage用法(如果这个图片已经被加载了，或者已经存在内存中，那么placeholder图片将不会显示)
             //fit:同上
             //fadeInCurve:  淡入动画(曲线)

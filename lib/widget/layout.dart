@@ -7,7 +7,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_layout_test/refresh/refresh.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 //布局构建（垂直排列，水平排列）  go on
-//常量定义
+//线性布局Row和Column
+//弹性布局Flex(类似weight)
+//流式布局Wrap,Flow
+//层叠布局Stack,Positioned
 const String name1 = 'flutter_widget_layout';
 
 class LayoutWidget extends StatefulWidget {
