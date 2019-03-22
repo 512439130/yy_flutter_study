@@ -57,7 +57,7 @@ class _WorkWidgetState extends State<WorkWidget> {
       children: <Widget>[
         new Container(
             alignment: Alignment.center,
-            color: Colors.greenAccent,
+//            color: Colors.greenAccent,
             child: getNetImage(false, url, fit)),
         Positioned(
           right: 0,
@@ -328,7 +328,7 @@ class _WorkWidgetState extends State<WorkWidget> {
 
             //按钮
             new Container(
-              margin: const EdgeInsets.only(top: 40, bottom: 40),
+              margin: const EdgeInsets.only(top: 40, bottom: 40,left: 10,right: 10),
               child: buildButton("确认拒绝", const Color(0xFFFFFFFF),
                   const Color(0x803068E8), buttonClick1),
             ),
