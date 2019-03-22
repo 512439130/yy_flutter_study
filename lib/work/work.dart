@@ -18,7 +18,7 @@ class WorkWidget extends StatefulWidget {
 
 class _WorkWidgetState extends State<WorkWidget> {
   final TextEditingController _textFieldController =
-  new TextEditingController();
+      new TextEditingController();
 
   @override
   void initState() {
@@ -56,17 +56,12 @@ class _WorkWidgetState extends State<WorkWidget> {
 
       children: <Widget>[
         new Container(
-            alignment:Alignment.center,
-            height: 80,
-            width: 80,
-//      margin: const EdgeInsets.only(top: 15.0),
-//          padding: const EdgeInsets.only(left:20,right:20,top: 20,bottom: 20),
-//            color: Colors.greenAccent,
-
-            child: getNetImage(false,url, fit)),
+            alignment: Alignment.center,
+            color: Colors.greenAccent,
+            child: getNetImage(false, url, fit)),
         Positioned(
-          right: 1,
-          top: 1,
+          right: 0,
+          top: 0,
           child: getDeleteIcon(),
         )
       ],
@@ -79,10 +74,9 @@ class _WorkWidgetState extends State<WorkWidget> {
       overflow: Overflow.visible,
       children: <Widget>[
         new Container(
-          color:const Color(0xFFF7F8FA),
+            color: const Color(0xFFF7F8FA),
             padding: const EdgeInsets.all(15),
-            child: getLocalImage(path, fit)
-        ),
+            child: getLocalImage(path, fit)),
       ],
     );
   }
@@ -170,18 +164,22 @@ class _WorkWidgetState extends State<WorkWidget> {
       child: new Offstage(
         //使用Offstage 控制widget在tree中的显示和隐藏
         offstage: offstage,
-        child: new CachedNetworkImage(
+        child: new Container(
+          padding: const EdgeInsets.all(0),
+          child: new CachedNetworkImage(
           width: 60,
           height: 60,
-          fit: fit,
-          fadeInCurve: Curves.ease,
-          fadeInDuration: Duration(seconds: 2),
-          fadeOutCurve: Curves.ease,
-          fadeOutDuration: Duration(seconds: 1),
-          imageUrl: url,
+
+            fit: fit,
+            fadeInCurve: Curves.ease,
+            fadeInDuration: Duration(seconds: 2),
+            fadeOutCurve: Curves.ease,
+            fadeOutDuration: Duration(seconds: 1),
+            imageUrl: url,
 //        placeholder: (context, url) => Image(image: AssetImage('images/icon_image_default.png')),
-          placeholder: (context, url) => CircularProgressIndicator(),
-          errorWidget: (context, url, error) => new Icon(Icons.error),
+            placeholder: (context, url) => CircularProgressIndicator(),
+            errorWidget: (context, url, error) => new Icon(Icons.error),
+          ),
         ),
       ),
     );
@@ -234,10 +232,12 @@ class _WorkWidgetState extends State<WorkWidget> {
   Widget buildGrid() {
     return new GridView.count(
       crossAxisCount: 4,
-      mainAxisSpacing: 24,//上下间距
-      crossAxisSpacing: 24,//左右间距
-      padding: const EdgeInsets.fromLTRB(14,0,0,0),
-      primary:false,
+      mainAxisSpacing: 24,
+      //上下间距
+      crossAxisSpacing: 24,
+      //左右间距
+      padding: const EdgeInsets.fromLTRB(14, 0, 0, 0),
+      primary: false,
       shrinkWrap: true,
 
       children: <Widget>[
@@ -283,7 +283,6 @@ class _WorkWidgetState extends State<WorkWidget> {
 
           physics: BouncingScrollPhysics(), //解决滑动冲突
           children: <Widget>[
-
             //输入框
             new Container(
               margin: const EdgeInsets.only(top: 10.0),
@@ -304,7 +303,6 @@ class _WorkWidgetState extends State<WorkWidget> {
               ),
             ),
 
-
             //textTitle
             new Container(
               margin: const EdgeInsets.only(top: 5),
@@ -324,16 +322,15 @@ class _WorkWidgetState extends State<WorkWidget> {
             //GradView
             new Container(
               color: const Color(0xFFFFFFFF),
-              padding: const EdgeInsets.fromLTRB(0,0,0,0),
+              padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
               child: buildGrid(),
             ),
 
             //按钮
             new Container(
-              margin: const EdgeInsets.only(top: 40,bottom: 40),
-              child: buildButton(
-                  "确认拒绝", const Color(0xFFFFFFFF), const Color(0x803068E8),
-                  buttonClick1),
+              margin: const EdgeInsets.only(top: 40, bottom: 40),
+              child: buildButton("确认拒绝", const Color(0xFFFFFFFF),
+                  const Color(0x803068E8), buttonClick1),
             ),
           ],
         ));
@@ -343,8 +340,8 @@ class _WorkWidgetState extends State<WorkWidget> {
   }
 
   //生成MaterialButton
-  Container buildButton(String value, Color textColor, Color background,
-      Function clickEvent()) {
+  Container buildButton(
+      String value, Color textColor, Color background, Function clickEvent()) {
     return new Container(
       margin: const EdgeInsets.only(top: 15.0),
       child: new MaterialButton(
