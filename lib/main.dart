@@ -6,6 +6,7 @@ import 'package:english_words/english_words.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_layout_test/network/network.dart';
 import 'package:flutter_layout_test/other/other.dart';
+import 'package:flutter_layout_test/permission/permission.dart';
 import 'package:flutter_layout_test/refresh/refresh.dart';
 import 'package:flutter_layout_test/widget/button.dart';
 import 'package:flutter_layout_test/widget/image.dart';
@@ -71,6 +72,7 @@ class MyApp extends StatelessWidget {
           '/router/ohter/ohter': (_) => new OtherWidget(),
           '/router/network/network': (_) => new NetworkWidget(),
           '/router/work/work': (_) => new WorkWidget(),
+          '/router/permission/permission': (_) => new PermissionWidget(),
         },
       ),
     );
@@ -133,6 +135,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 '/router/network/network'),
             buildButton("WorkWidget", Colors.white, Colors.deepOrangeAccent,
                 '/router/work/work'),
+            buildButton("PermissionWidget", Colors.white,
+                Colors.deepOrangeAccent, '/router/permission/permission'),
           ],
         ));
   }

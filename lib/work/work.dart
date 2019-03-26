@@ -1,12 +1,20 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_layout_test/bean/Datas.dart';
+import 'package:flutter_layout_test/bean/TestBean.dart';
+import 'package:flutter_layout_test/dialog/ProgressDialog.dart';
+import 'package:flutter_layout_test/util/PermissionUtil.dart';
 import 'package:oktoast/oktoast.dart';
+
+//jsonDecode
+import 'dart:convert';
+
+import 'package:simple_permissions/simple_permissions.dart';
 
 //常量定义
 const String name1 = '拒绝审批';
-List<String> list = new List();
-
-List<Widget> listWidget = new List();
 
 class WorkWidget extends StatefulWidget {
   WorkWidget({Key key, this.title}) : super(key: key);
@@ -19,37 +27,52 @@ class WorkWidget extends StatefulWidget {
 class _WorkWidgetState extends State<WorkWidget> {
   final TextEditingController _textFieldController =
       new TextEditingController();
+  List<Widget> listWidget;
+  String testJsonValue;
+  Map<String, dynamic> json;
+  TestBean testBean = new TestBean();
+
+  ProgressDialog progressDialog;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     init();
+    initProgress();
   }
 
-  //初始化
+//  //初始化
   void init() {
-    setList();
-  }
-
-  void setList() {
-    list.add(
-        'https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=80538588,251590437&fm=26&gp=0.png');
-    list.add(
-        'https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=4001410800,1923890559&fm=26&gp=0.png');
-    list.add(
-        'https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=3597303668,2750618423&fm=26&gp=0.png');
-    list.add(
-        'https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=61077523,1715146142&fm=26&gp=0.png');
-    list.add(
-        'https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=4087213632,1096565806&fm=26&gp=0.png');
-
-    for (int i = 0; i < list.length; i++) {
-      listWidget.add(networkImage(list[i], BoxFit.cover));
+    testJsonValue =
+        '{"datas":[{"id":"1","url":"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1553505918721&di=30abbc97f9b299cad7de51a06cbee078&imgtype=0&src=http%3A%2F%2Fimg15.3lian.com%2F2015%2Ff2%2F57%2Fd%2F93.jpg"},{"id":"2","url":"https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=80538588,251590437&fm=26&gp=0.png"},{"id":"3","url":"https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=3597303668,2750618423&fm=26&gp=0.png"},{"id":"4","url":"https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=61077523,1715146142&fm=26&gp=0.png"},{"id":"5","url":"https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=4087213632,1096565806&fm=26&gp=0.png"},{"id":"6","url":"https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=3597303668,2750618423&fm=26&gp=0.png"}],"resMsg":{"message":"success !","method":null,"code":"1"}}';
+    if (testJsonValue != null) {
+      json = jsonDecode(testJsonValue);
+      testBean = TestBean.fromJson(json);
+      setList();
     }
   }
 
-  Widget networkImage(String url, BoxFit fit) {
+  void initProgress() {
+    progressDialog = new ProgressDialog(context);
+    progressDialog.setMessage("Loading...");
+    progressDialog.setTextColor(Colors.black);
+    progressDialog.setTextSize(16);
+  }
+
+  void setList() {
+    //listWidget
+    listWidget = new List<Widget>();
+    for (int i = 0; i < testBean.datas.length; i++) {
+      if (i < testBean.datas.length - 1) {
+        listWidget.add(networkImage(i, testBean.datas[i].url));
+      } else {
+        listWidget.add(localImage('images/icon_add.png', BoxFit.cover));
+      }
+    }
+  }
+
+  Widget networkImage(int id, String url) {
     return new Stack(
       alignment: Alignment.center, //指定未定位或部分定位widget的对齐方式
       overflow: Overflow.visible,
@@ -58,11 +81,11 @@ class _WorkWidgetState extends State<WorkWidget> {
         new Container(
             alignment: Alignment.center,
 //            color: Colors.greenAccent,
-            child: getNetImage(false, url, fit)),
+            child: getNetImage(id, false, url, BoxFit.cover)),
         Positioned(
           right: 0,
           top: 0,
-          child: getDeleteIcon(),
+          child: getDeleteIcon(id),
         )
       ],
     );
@@ -84,38 +107,9 @@ class _WorkWidgetState extends State<WorkWidget> {
   Widget getLocalImage(String path, BoxFit fit) {
     return new GestureDetector(
       onTap: () {
-        addImage('onTap');
-      },
-      onTapUp: (d) {
-        addImage('onTapUp');
-      },
-      onTapDown: (d) {
-        addImage('onTapDown');
+        asyncAddImage(testBean.datas.length + 1);
         //调用replace
       },
-      onTapCancel: () {
-//        replace('onTapCancel');
-      },
-      onDoubleTap: () {
-//        replace('onDoubleTap');
-      },
-//      //手指按下时会触发此回调
-//      onPanDown: (DragDownDetails e) {
-//        //打印手指按下的位置(相对于屏幕)
-//        print("用户手指按下：${e.globalPosition}");
-//      },
-//      //手指滑动时会触发此回调
-//      onPanUpdate: (DragUpdateDetails e) {
-//        //用户手指滑动时，更新偏移，重新构建
-//
-//        print("用户手指按下dx：${e.delta.dx}");
-//        print("用户手指按下dy：${e.delta.dy}");
-//      },
-//      onPanEnd: (DragEndDetails e){
-//        //打印滑动结束时在x、y轴上的速度
-//        print(e.velocity);
-//      },
-
       child: new Image.asset(
         path,
         width: 30,
@@ -127,99 +121,91 @@ class _WorkWidgetState extends State<WorkWidget> {
     );
   }
 
-  Widget getNetImage(bool offstage, String url, BoxFit fit) {
+  Widget getNetImage(int id, bool offstage, String url, BoxFit fit) {
     return new GestureDetector(
       onTap: () {
-        replace('onTap');
-      },
-      onTapUp: (d) {
-        replace('onTapUp');
-      },
-      onTapDown: (d) {
-        replace('onTapDown');
+        showDialog(
+            context: context,
+            builder: (_) => new AlertDialog(
+                    title: new Text("提示"),
+                    content: new Text("是否替换图片？"),
+                    actions: <Widget>[
+                      new FlatButton(
+                        child: new Text("取消"),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                      new FlatButton(
+                        child: new Text("确定"),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          asyncReplaceImage(id);
+                        },
+                      )
+                    ]));
+
         //调用replace
       },
-      onTapCancel: () {
-//        replace('onTapCancel');
-      },
-      onDoubleTap: () {
-//        replace('onDoubleTap');
-      },
-//      //手指按下时会触发此回调
-//      onPanDown: (DragDownDetails e) {
-//        //打印手指按下的位置(相对于屏幕)
-//        print("用户手指按下：${e.globalPosition}");
-//      },
-//      //手指滑动时会触发此回调
-//      onPanUpdate: (DragUpdateDetails e) {
-//        //用户手指滑动时，更新偏移，重新构建
-//
-//        print("用户手指按下dx：${e.delta.dx}");
-//        print("用户手指按下dy：${e.delta.dy}");
-//      },
-//      onPanEnd: (DragEndDetails e){
-//        //打印滑动结束时在x、y轴上的速度
-//        print(e.velocity);
-//      },
       child: new Offstage(
         //使用Offstage 控制widget在tree中的显示和隐藏
         offstage: offstage,
-        child: new Container(
-          padding: const EdgeInsets.all(0),
-          child: new CachedNetworkImage(
-          width: 60,
-          height: 60,
+        child: new ClipRRect(
+          child: new Container(
+            padding: const EdgeInsets.all(0),
+            child: new CachedNetworkImage(
+              width: 60,
+              height: 60,
 
-            fit: fit,
-            fadeInCurve: Curves.ease,
-            fadeInDuration: Duration(seconds: 2),
-            fadeOutCurve: Curves.ease,
-            fadeOutDuration: Duration(seconds: 1),
-            imageUrl: url,
+              fit: fit,
+              fadeInCurve: Curves.ease,
+              fadeInDuration: Duration(milliseconds: 800),
+              fadeOutCurve: Curves.ease,
+              fadeOutDuration: Duration(milliseconds: 400),
+              imageUrl: url,
 //        placeholder: (context, url) => Image(image: AssetImage('images/icon_image_default.png')),
-            placeholder: (context, url) => CircularProgressIndicator(),
-            errorWidget: (context, url, error) => new Icon(Icons.error),
+              placeholder: (context, url) => CircularProgressIndicator(),
+              errorWidget: (context, url, error) => new Icon(Icons.error),
+            ),
+          ),
+          //圆角
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(5),
+            topRight: Radius.circular(5),
+            bottomLeft: Radius.circular(5),
+            bottomRight: Radius.circular(5),
           ),
         ),
       ),
     );
   }
 
-  Widget getDeleteIcon() {
+  Widget getDeleteIcon(int id) {
     return new GestureDetector(
       onTap: () {
-        delete('onTap');
-      },
-      onTapUp: (d) {
-        delete('onTapUp');
-      },
-      onTapDown: (d) {
-        delete('onTapDown');
+        showDialog(
+            context: context,
+            builder: (_) => new AlertDialog(
+                    title: new Text("提示"),
+                    content: new Text("确认删除？"),
+                    actions: <Widget>[
+                      new FlatButton(
+                        child: new Text("取消"),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                      new FlatButton(
+                        child: new Text("确定"),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          asyncDeleteImage(id);
+                        },
+                      )
+                    ]));
+
         //调用delete
       },
-      onTapCancel: () {
-//        delete('onTapCancel');
-      },
-      onDoubleTap: () {
-//        delete('onDoubleTap');
-      },
-
-//      //手指按下时会触发此回调
-//      onPanDown: (DragDownDetails e) {
-//        //打印手指按下的位置(相对于屏幕)
-//        print("用户手指按下：${e.globalPosition}");
-//      },
-//      //手指滑动时会触发此回调
-//      onPanUpdate: (DragUpdateDetails e) {
-//        //用户手指滑动时，更新偏移，重新构建
-//
-//        print("用户手指按下dx：${e.delta.dx}");
-//        print("用户手指按下dy：${e.delta.dy}");
-//      },
-//      onPanEnd: (DragEndDetails e){
-//        //打印滑动结束时在x、y轴上的速度
-//        print(e.velocity);
-//      },
       child: Image.asset(
         'images/icon_image_delete.png',
         width: 20,
@@ -229,7 +215,7 @@ class _WorkWidgetState extends State<WorkWidget> {
     );
   }
 
-  Widget buildGrid() {
+  Widget buildGrid(List<Widget> listWidget) {
     return new GridView.count(
       crossAxisCount: 4,
       mainAxisSpacing: 24,
@@ -239,40 +225,13 @@ class _WorkWidgetState extends State<WorkWidget> {
       padding: const EdgeInsets.fromLTRB(14, 0, 0, 0),
       primary: false,
       shrinkWrap: true,
-
-      children: <Widget>[
-        listWidget[0],
-        listWidget[1],
-        listWidget[2],
-        listWidget[3],
-        listWidget[4],
-        listWidget[0],
-        listWidget[1],
-        listWidget[2],
-        listWidget[3],
-        listWidget[4],
-        listWidget[0],
-        listWidget[1],
-        listWidget[2],
-        listWidget[3],
-        listWidget[4],
-        listWidget[0],
-        listWidget[1],
-        listWidget[2],
-        listWidget[3],
-        listWidget[4],
-        listWidget[0],
-        listWidget[1],
-        listWidget[2],
-        listWidget[3],
-        listWidget[4],
-        localImage('images/icon_add.png', BoxFit.cover),
-      ],
+      children: listWidget,
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    setList();
     return Scaffold(
         appBar: AppBar(
           backgroundColor: const Color(0xFFF5F5F5),
@@ -280,8 +239,7 @@ class _WorkWidgetState extends State<WorkWidget> {
         ),
         body: new ListView(
           shrinkWrap: true,
-
-          physics: BouncingScrollPhysics(), //解决滑动冲突
+          physics: BouncingScrollPhysics(),
           children: <Widget>[
             //输入框
             new Container(
@@ -323,20 +281,19 @@ class _WorkWidgetState extends State<WorkWidget> {
             new Container(
               color: const Color(0xFFFFFFFF),
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-              child: buildGrid(),
+              child: buildGrid(listWidget),
             ),
 
             //按钮
             new Container(
-              margin: const EdgeInsets.only(top: 40, bottom: 40,left: 10,right: 10),
+              margin: const EdgeInsets.only(
+                  top: 40, bottom: 40, left: 10, right: 10),
               child: buildButton("确认拒绝", const Color(0xFFFFFFFF),
                   const Color(0x803068E8), buttonClick1),
             ),
+
           ],
         ));
-//      body: new Center(
-//        child: buildGrid(),
-//       }
   }
 
   //生成MaterialButton
@@ -362,6 +319,14 @@ class _WorkWidgetState extends State<WorkWidget> {
         toast(_textFieldController.text);
       }
     });
+    return null;
+  }
+
+  Function buttonClick2() {
+    setState(() {
+      //click
+    });
+    return null;
   }
 
   void toast(String value) {
@@ -376,18 +341,77 @@ class _WorkWidgetState extends State<WorkWidget> {
         ));
   }
 
-  void delete(String value) {
-    print("delete=$value");
-    toast("delete");
+  Future<void> asyncDeleteImage(int id) async {
+    try {
+      progressDialog.show();
+      await Future.delayed(Duration(seconds: 1), () {
+        setState(() {
+          testBean.datas.removeAt(id);
+        });
+        progressDialog.hide();
+      });
+    } catch (e) {
+      progressDialog.hide();
+      print("faild:$e.toString()");
+    }
   }
 
-  void replace(String value) {
-    print("replace=$value");
-    toast("replace");
+  Future<void> asyncReplaceImage(int id) async {
+    try {
+      progressDialog.show();
+      await Future.delayed(Duration(seconds: 1), () {
+        setState(() {
+          testBean.datas[id].url =
+              'https://timgsa.baidu.com/timg?image&quality=80&size=b10000_10000&sec=1553491026&di=e465cf9f41edbfe0aef7ae3e330831a2&src=http://b-ssl.duitang.com/uploads/item/201404/19/20140419211053_iTiZM.thumb.700_0.jpeg';
+        });
+        progressDialog.hide();
+      });
+    } catch (e) {
+      progressDialog.hide();
+      print("faild:$e.toString()");
+    }
   }
 
-  void addImage(String value) {
-    print("addImage=$value");
-    toast("addImage");
+  Future<void> asyncAddImage(int id) async {
+    try {
+      progressDialog.show();
+      await Future.delayed(Duration(seconds: 1), () {
+        setState(() {
+          Future future1 = new Future(() => null);
+          future1.then((_) {
+            PermissionUtil.requestPermission(Permission.WriteExternalStorage)
+                .then((_) {
+              print("1");
+              Future future2 = new Future(() => null);
+              future2.then((_) {
+                PermissionUtil.requestPermission(Permission.Camera).then((_) {
+                  print("2");
+                  getSdCardImage(id);
+                });
+              });
+            });
+          });
+        });
+        progressDialog.hide();
+      });
+    } catch (e) {
+      progressDialog.hide();
+      print("faild:$e.toString()");
+    }
+  }
+
+  Future<void> getSdCardImage(int id) async {
+    await Future.delayed(Duration(microseconds: 500), () {
+      print("getSdCardImage");
+      Datas datas = new Datas();
+      datas.id = id.toString();
+      datas.url = "https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=80538588,251590437&fm=26&gp=0.png";
+      testBean.datas.add(datas);
+      _selectedImage();
+    });
+  }
+
+  void _selectedImage() {
+    setState(() {});
   }
 }
