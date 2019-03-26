@@ -74,6 +74,14 @@ class _ImageWidgetState extends State<ImageWidget> {
 //                new File("/storage/emulated/0/Download/flutter3.jpeg")),
             // Uint8List图片
 //            new Image.memory(bytes),
+
+            new Image.file(new File('/storage/emulated/0/DCIM/Camera/IMG_20190325_001314.jpg'),
+              fit: BoxFit.cover,
+
+            ),
+
+
+
             new Image.asset(
               'images/flutter.jpg',
               fit: BoxFit.fitHeight,

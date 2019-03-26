@@ -13,6 +13,7 @@ import 'package:flutter_layout_test/widget/image.dart';
 import 'package:flutter_layout_test/widget/layout.dart';
 import 'package:flutter_layout_test/widget/text.dart';
 import 'package:flutter_layout_test/work/work.dart';
+import 'package:flutter_layout_test/work/work2.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:oktoast/oktoast.dart';
 
@@ -72,6 +73,7 @@ class MyApp extends StatelessWidget {
           '/router/ohter/ohter': (_) => new OtherWidget(),
           '/router/network/network': (_) => new NetworkWidget(),
           '/router/work/work': (_) => new WorkWidget(),
+          '/router/work/work2': (_) => new Work2Widget(),
           '/router/permission/permission': (_) => new PermissionWidget(),
         },
       ),
@@ -115,6 +117,14 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
         appBar: AppBar(
           title: Text(name1),
+          actions: <Widget>[
+            new AppRovalBarRightWidget(
+              onPress: (BarItemActionType type) {
+                Navigator.maybePop(context);
+                print(type);
+              },
+            )
+          ],
         ),
         body: new ListView(
           physics: BouncingScrollPhysics(), //回弹效果
@@ -135,9 +145,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 '/router/network/network'),
             buildButton("WorkWidget", Colors.white, Colors.deepOrangeAccent,
                 '/router/work/work'),
+            buildButton("Work2Widget", Colors.white, Colors.deepOrangeAccent,
+                '/router/work/work2'),
             buildButton("PermissionWidget", Colors.white,
                 Colors.deepOrangeAccent, '/router/permission/permission'),
           ],
+
         ));
   }
 
@@ -145,6 +158,117 @@ class _MyHomePageState extends State<MyHomePage> {
     Navigator.of(context).pushNamed(route);
   }
 }
+
+
+
+
+enum BarItemActionType {
+  Close,
+  More,
+}
+
+class AppRovalBarRightWidget extends StatefulWidget {
+  var type = BarItemActionType.More;
+  final Function(BarItemActionType type) onPress;
+  AppRovalBarRightWidget({this.onPress});
+  @override
+  State<StatefulWidget> createState() {
+    // TODO: implement createState
+    return AppRovalBarRightWidgetState();
+  }
+}
+
+class AppRovalBarRightWidgetState extends State<AppRovalBarRightWidget> {
+  @override
+  Widget build(BuildContext context) {
+    return new Container(
+      margin: EdgeInsets.fromLTRB(0, 10, 20, 10),
+      width: 100,
+      //height: 10,
+      decoration: new BoxDecoration(
+        color: Colors.white,
+        border: new Border.all(width: 1.0, color: Color(0xFFFEBEBEB)),
+        borderRadius: new BorderRadius.all(
+          new Radius.circular(20),
+        ),
+      ),
+      alignment: Alignment.center,
+      child: new Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          new Container(
+            color: Colors.white,
+            margin: EdgeInsets.only(left: 10),
+            padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+            width: 30,
+            child: new AppRovalBarItem(
+              type: BarItemActionType.More,
+              imageName: "images/icon_more.png",
+              onPress: (BarItemActionType type) {
+                widget.onPress(type);
+              },
+            ),
+          ),
+          new Container(
+            width: 0.5,
+            color: Color(0xFFD9D9D9),
+            height: 25,
+          ),
+          new Container(
+            margin: EdgeInsets.fromLTRB(5, 0, 10, 0),
+            padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+            color: Colors.white,
+            width: 30,
+            child: new AppRovalBarItem(
+              imageName: "images/icon_close.png",
+              type: BarItemActionType.Close,
+              onPress: (BarItemActionType type) {
+                widget.onPress(type);
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class AppRovalBarItem extends StatefulWidget {
+  final BarItemActionType type;
+  final String imageName;
+  AppRovalBarItem(
+      {this.onPress,
+        this.imageName,
+        this.width,
+        this.height,
+        this.type = BarItemActionType.More});
+
+  final void Function(BarItemActionType type) onPress;
+  final double height, width;
+  @override
+  AppRovalBarItemState createState() => AppRovalBarItemState();
+}
+
+class AppRovalBarItemState extends State<AppRovalBarItem> {
+  @override
+  Widget build(BuildContext context) {
+    return new GestureDetector(
+      onTap: () {
+        if (widget.onPress != null) {
+          widget.onPress(widget.type);
+        }
+      },
+      child: new Container(
+        height: widget.height,
+        width: widget.width,
+        padding: EdgeInsets.fromLTRB(2, 0, 1, 0),
+        child: Image.asset(widget.imageName),
+      ),
+    );
+  }
+}
+
 
 //需要注意的细节点
 //如果需要使用新库，先在pubspec.yaml中导包，（如果不知道包名就在"https://pub.flutter-io.cn/packages"搜索），

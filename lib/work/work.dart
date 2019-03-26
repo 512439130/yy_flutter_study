@@ -1,15 +1,14 @@
 import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_layout_test/bean/Datas.dart';
-import 'package:flutter_layout_test/bean/TestBean.dart';
+import 'package:flutter_layout_test/bean/LocalImageBean.dart';
+import 'package:flutter_layout_test/dialog/BottomPickerHandler.dart';
 import 'package:flutter_layout_test/dialog/ProgressDialog.dart';
 import 'package:flutter_layout_test/util/PermissionUtil.dart';
 import 'package:oktoast/oktoast.dart';
+import 'package:image_picker/image_picker.dart';
 
-//jsonDecode
-import 'dart:convert';
+
 
 import 'package:simple_permissions/simple_permissions.dart';
 
@@ -24,35 +23,30 @@ class WorkWidget extends StatefulWidget {
   _WorkWidgetState createState() => _WorkWidgetState();
 }
 
-class _WorkWidgetState extends State<WorkWidget> {
+class _WorkWidgetState extends State<WorkWidget>with TickerProviderStateMixin implements BottomPickerListener {
   final TextEditingController _textFieldController =
       new TextEditingController();
   List<Widget> listWidget;
-  String testJsonValue;
-  Map<String, dynamic> json;
-  TestBean testBean = new TestBean();
+  List<LocalImageBean> localImageBeanList;
 
   ProgressDialog progressDialog;
+
+  AnimationController _controller;
+  BottomPickerListener _listener;
+  BottomPickerHandler bottomPicker;
+
+
+  //选择器
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    print("initState");
     init();
     initProgress();
+    initBottomPicker();
   }
-
-//  //初始化
-  void init() {
-    testJsonValue =
-        '{"datas":[{"id":"1","url":"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1553505918721&di=30abbc97f9b299cad7de51a06cbee078&imgtype=0&src=http%3A%2F%2Fimg15.3lian.com%2F2015%2Ff2%2F57%2Fd%2F93.jpg"},{"id":"2","url":"https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=80538588,251590437&fm=26&gp=0.png"},{"id":"3","url":"https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=3597303668,2750618423&fm=26&gp=0.png"},{"id":"4","url":"https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=61077523,1715146142&fm=26&gp=0.png"},{"id":"5","url":"https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=4087213632,1096565806&fm=26&gp=0.png"},{"id":"6","url":"https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=3597303668,2750618423&fm=26&gp=0.png"}],"resMsg":{"message":"success !","method":null,"code":"1"}}';
-    if (testJsonValue != null) {
-      json = jsonDecode(testJsonValue);
-      testBean = TestBean.fromJson(json);
-      setList();
-    }
-  }
-
   void initProgress() {
     progressDialog = new ProgressDialog(context);
     progressDialog.setMessage("Loading...");
@@ -60,19 +54,100 @@ class _WorkWidgetState extends State<WorkWidget> {
     progressDialog.setTextSize(16);
   }
 
-  void setList() {
-    //listWidget
-    listWidget = new List<Widget>();
-    for (int i = 0; i < testBean.datas.length; i++) {
-      if (i < testBean.datas.length - 1) {
-        listWidget.add(networkImage(i, testBean.datas[i].url));
-      } else {
-        listWidget.add(localImage('images/icon_add.png', BoxFit.cover));
+  void initBottomPicker() {
+    _controller = new AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+
+    bottomPicker=new BottomPickerHandler(this,_controller);
+    bottomPicker.init();
+  }
+
+  @override
+  useImage(File _image) {
+    // TODO: implement useImage
+    int length;
+    if (localImageBeanList != null && localImageBeanList.length > 0) {
+      length = localImageBeanList.length + 1;
+    } else {
+      length = 1;
+    }
+    setState(() {
+      if(_image != null){
+        print('addSdCard');
+        LocalImageBean localImageBean = new LocalImageBean();
+        localImageBean.id = length.toString();
+        localImageBean.path = _image.path;
+        //type
+        localImageBeanList.add(localImageBean);
+        //去重复
+        localImageBeanList = deduplication(localImageBeanList);
+      }else{
+        print('addSdCard-未选择');
       }
+
+    });
+    return null;
+  }
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    print("didChangeDependencies");
+  }
+
+  @override
+  void didUpdateWidget(WorkWidget oldWidget) {
+    // TODO: implement didUpdateWidget
+    super.didUpdateWidget(oldWidget);
+    print("didUpdateWidget");
+  }
+
+  @override
+  void deactivate() {
+    // TODO: implement deactivate
+    super.deactivate();
+    print("deactivate");
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    print("dispose");
+  }
+
+//  //初始化
+  void init() {
+    localImageBeanList = new List<LocalImageBean>();
+  }
+
+
+
+
+  void setList() {
+    print('setList');
+    //listWidget
+    //每次生成新的图片数组
+    listWidget = new List<Widget>();
+    if (localImageBeanList != null && localImageBeanList.length > 0) {
+      print('localImageBeanList!=0');
+      for (int i = 0; i < localImageBeanList.length; i++) {
+        listWidget.add(sdCardImage(i, localImageBeanList[i].path));
+        print('localImageBeanList-path:' + localImageBeanList[0].path);
+      }
+      //每次在尾部加添加图片
+      listWidget.add(localImage('images/icon_add.png', BoxFit.cover));
+    } else {
+      print('localImageBeanList==0');
+      listWidget.add(localImage('images/icon_add.png', BoxFit.cover));
     }
   }
 
-  Widget networkImage(int id, String url) {
+
+
+  Widget sdCardImage(int id, String path) {
     return new Stack(
       alignment: Alignment.center, //指定未定位或部分定位widget的对齐方式
       overflow: Overflow.visible,
@@ -81,7 +156,7 @@ class _WorkWidgetState extends State<WorkWidget> {
         new Container(
             alignment: Alignment.center,
 //            color: Colors.greenAccent,
-            child: getNetImage(id, false, url, BoxFit.cover)),
+            child: getSdCardImage(id, false, path, BoxFit.cover)),
         Positioned(
           right: 0,
           top: 0,
@@ -107,7 +182,13 @@ class _WorkWidgetState extends State<WorkWidget> {
   Widget getLocalImage(String path, BoxFit fit) {
     return new GestureDetector(
       onTap: () {
-        asyncAddImage(testBean.datas.length + 1);
+        int defaultLength = 1;
+        if (localImageBeanList != null && localImageBeanList.length > 0) {
+          asyncAddImage(localImageBeanList.length + 1);
+        } else {
+          asyncAddImage(defaultLength);
+        }
+
         //调用replace
       },
       child: new Image.asset(
@@ -121,31 +202,10 @@ class _WorkWidgetState extends State<WorkWidget> {
     );
   }
 
-  Widget getNetImage(int id, bool offstage, String url, BoxFit fit) {
+  Widget getSdCardImage(int id, bool offstage, String path, BoxFit fit) {
     return new GestureDetector(
       onTap: () {
-        showDialog(
-            context: context,
-            builder: (_) => new AlertDialog(
-                    title: new Text("提示"),
-                    content: new Text("是否替换图片？"),
-                    actions: <Widget>[
-                      new FlatButton(
-                        child: new Text("取消"),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                      new FlatButton(
-                        child: new Text("确定"),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          asyncReplaceImage(id);
-                        },
-                      )
-                    ]));
-
-        //调用replace
+        asyncReplaceImage(id);
       },
       child: new Offstage(
         //使用Offstage 控制widget在tree中的显示和隐藏
@@ -153,19 +213,11 @@ class _WorkWidgetState extends State<WorkWidget> {
         child: new ClipRRect(
           child: new Container(
             padding: const EdgeInsets.all(0),
-            child: new CachedNetworkImage(
-              width: 60,
-              height: 60,
-
+            child: new Image.file(
+              new File(path),
+              width: 55,
+              height: 55,
               fit: fit,
-              fadeInCurve: Curves.ease,
-              fadeInDuration: Duration(milliseconds: 800),
-              fadeOutCurve: Curves.ease,
-              fadeOutDuration: Duration(milliseconds: 400),
-              imageUrl: url,
-//        placeholder: (context, url) => Image(image: AssetImage('images/icon_image_default.png')),
-              placeholder: (context, url) => CircularProgressIndicator(),
-              errorWidget: (context, url, error) => new Icon(Icons.error),
             ),
           ),
           //圆角
@@ -179,6 +231,7 @@ class _WorkWidgetState extends State<WorkWidget> {
       ),
     );
   }
+
 
   Widget getDeleteIcon(int id) {
     return new GestureDetector(
@@ -208,8 +261,8 @@ class _WorkWidgetState extends State<WorkWidget> {
       },
       child: Image.asset(
         'images/icon_image_delete.png',
-        width: 20,
-        height: 20,
+        width: 15,
+        height: 15,
         fit: BoxFit.cover,
       ),
     );
@@ -231,6 +284,7 @@ class _WorkWidgetState extends State<WorkWidget> {
 
   @override
   Widget build(BuildContext context) {
+    print("build");
     setList();
     return Scaffold(
         appBar: AppBar(
@@ -291,7 +345,6 @@ class _WorkWidgetState extends State<WorkWidget> {
               child: buildButton("确认拒绝", const Color(0xFFFFFFFF),
                   const Color(0x803068E8), buttonClick1),
             ),
-
           ],
         ));
   }
@@ -315,9 +368,12 @@ class _WorkWidgetState extends State<WorkWidget> {
 
   Function buttonClick1() {
     setState(() {
-      if (_textFieldController.text.length != 0) {
-        toast(_textFieldController.text);
+      if(localImageBeanList != null && localImageBeanList.length > 0){
+        toast('已选择：$localImageBeanList');
+      }else{
+        toast('你还未选择图片');
       }
+
     });
     return null;
   }
@@ -344,9 +400,9 @@ class _WorkWidgetState extends State<WorkWidget> {
   Future<void> asyncDeleteImage(int id) async {
     try {
       progressDialog.show();
-      await Future.delayed(Duration(seconds: 1), () {
+      await Future.delayed(Duration(milliseconds: 500), () {
         setState(() {
-          testBean.datas.removeAt(id);
+          localImageBeanList.removeAt(id);
         });
         progressDialog.hide();
       });
@@ -359,12 +415,9 @@ class _WorkWidgetState extends State<WorkWidget> {
   Future<void> asyncReplaceImage(int id) async {
     try {
       progressDialog.show();
-      await Future.delayed(Duration(seconds: 1), () {
-        setState(() {
-          testBean.datas[id].url =
-              'https://timgsa.baidu.com/timg?image&quality=80&size=b10000_10000&sec=1553491026&di=e465cf9f41edbfe0aef7ae3e330831a2&src=http://b-ssl.duitang.com/uploads/item/201404/19/20140419211053_iTiZM.thumb.700_0.jpeg';
-        });
+      await Future.delayed(Duration(milliseconds: 500), () {
         progressDialog.hide();
+        replaceSdCard(id);
       });
     } catch (e) {
       progressDialog.hide();
@@ -375,20 +428,36 @@ class _WorkWidgetState extends State<WorkWidget> {
   Future<void> asyncAddImage(int id) async {
     try {
       progressDialog.show();
-      await Future.delayed(Duration(seconds: 1), () {
+      await Future.delayed(Duration(milliseconds: 500), () {
         setState(() {
           Future future1 = new Future(() => null);
           future1.then((_) {
             PermissionUtil.requestPermission(Permission.WriteExternalStorage)
-                .then((_) {
-              print("1");
-              Future future2 = new Future(() => null);
-              future2.then((_) {
-                PermissionUtil.requestPermission(Permission.Camera).then((_) {
-                  print("2");
-                  getSdCardImage(id);
+                .then((result) {
+              print("requestPermission-WriteExternalStorage$result");
+              if(result == PermissionStatus.deniedNeverAsk){
+                //setting
+                toast('由于用户您选择不在提醒，并且拒绝了权限，请您去系统设置修改相关权限后再进行功能尝试');
+                PermissionUtil.openPermissionSetting();
+              }else if(result == PermissionStatus.authorized){
+                Future future2 = new Future(() => null);
+                future2.then((_) {
+                  PermissionUtil.requestPermission(Permission.Camera)
+                      .then((result2) {
+                    print("requestPermission-Camera$result2");
+                    if(result2 == PermissionStatus.deniedNeverAsk){
+                      //setting
+                      toast('由于用户您选择不在提醒，并且拒绝了权限，请您去系统设置修改相关权限后再进行功能尝试');
+                      PermissionUtil.openPermissionSetting();
+
+                    }else if(result2 == PermissionStatus.authorized){
+//                      addSdCard(id);
+                      bottomPicker.showDialog(context);
+                    }
+                  });
                 });
-              });
+              }
+
             });
           });
         });
@@ -400,18 +469,63 @@ class _WorkWidgetState extends State<WorkWidget> {
     }
   }
 
-  Future<void> getSdCardImage(int id) async {
-    await Future.delayed(Duration(microseconds: 500), () {
-      print("getSdCardImage");
-      Datas datas = new Datas();
-      datas.id = id.toString();
-      datas.url = "https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=80538588,251590437&fm=26&gp=0.png";
-      testBean.datas.add(datas);
-      _selectedImage();
+
+
+//  Future<void> addSdCard(int id) async {
+//    var image = await ImagePicker.pickImage(source: ImageSource.gallery);
+//    setState(() {
+//      if(image != null){
+//        print('addSdCard');
+//        LocalImageBean localImageBean = new LocalImageBean();
+//        localImageBean.id = id.toString();
+//        localImageBean.path = image.path;
+//        //type
+//        localImageBeanList.add(localImageBean);
+//        //去重复
+//        localImageBeanList = deduplication(localImageBeanList);
+//
+//      }else{
+//        print('addSdCard-未选择');
+//      }
+//
+//    });
+//  }
+
+  Future<void> replaceSdCard(int id) async {
+    var image = await ImagePicker.pickImage(source: ImageSource.gallery);
+    setState(() {
+      if(image != null){
+        print('replaceSdCard');
+        //type
+        localImageBeanList[id].path=image.path;
+        //去重复
+        localImageBeanList = deduplication(localImageBeanList);
+      }else{
+        print('replaceSdCard-未选择');
+      }
     });
   }
 
-  void _selectedImage() {
-    setState(() {});
+  //List去重复(Set方式)
+  List<LocalImageBean> deduplication(List<LocalImageBean> list){
+    Set<String> localImageBeanSet = new Set<String>();
+    for(int i = 0;i<list.length;i++){
+      localImageBeanSet.add(list[i].path);
+    }
+    print('set:'+localImageBeanSet.toString());
+    list.clear();
+    List setToList = localImageBeanSet.toList(growable: true);
+
+    for(int i = 0 ; i<setToList.length;i++){
+      LocalImageBean localImageBean = new LocalImageBean();
+      localImageBean.id = i.toString();
+      localImageBean.path = setToList[i];
+      list.add(localImageBean);
+    }
+    return list;
   }
+
+
+
+
 }
