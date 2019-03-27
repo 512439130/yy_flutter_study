@@ -3,6 +3,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_layout_test/bean/LocalImageBean.dart';
 import 'package:flutter_layout_test/consts/Constant.dart';
+import 'package:flutter_layout_test/dialog/BottomPickerHandler.dart';
+import 'package:flutter_layout_test/dialog/ProgressDialog.dart';
+import 'package:flutter_layout_test/util/ListUtil.dart';
 import 'package:flutter_layout_test/util/PictureUtil.dart';
 import 'package:oktoast/oktoast.dart';
 
@@ -32,16 +35,66 @@ class GridPictureSelectWidget extends StatefulWidget {
 }
 
 
-class _GridPictureSelectWidgetState extends State<GridPictureSelectWidget> {
+class _GridPictureSelectWidgetState extends State<GridPictureSelectWidget> with TickerProviderStateMixin implements BottomPickerListener{
   List<Widget> listWidget;
   List<String> imageUrls;
 
+  ProgressDialog progressDialog;
+
+  AnimationController _controller;
+  BottomPickerHandler bottomPicker;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    print("initState");
+    initProgress();
+    initBottomPicker();
   }
 
+  void initProgress() {
+    progressDialog = new ProgressDialog(context);
+    progressDialog.setMessage("Loading...");
+    progressDialog.setTextColor(Colors.black);
+    progressDialog.setTextSize(16);
+  }
+
+  void initBottomPicker() {
+    _controller = new AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+
+    bottomPicker = new BottomPickerHandler(this, _controller);
+    bottomPicker.init();
+  }
+
+  @override
+  bottomSelectImage(File _image) {
+    //选择图片后的回调
+    // TODO: implement useImage
+    int length;
+    if (widget.localImageBeanList != null && widget.localImageBeanList.length > 0) {
+      length = widget.localImageBeanList.length + 1;
+    } else {
+      length = 1;
+    }
+    setState(() {
+      if (_image != null) {
+        print('addSdCard');
+        LocalImageBean localImageBean = new LocalImageBean();
+        localImageBean.id = length.toString();
+        localImageBean.path = _image.path;
+        //type
+        widget.localImageBeanList.add(localImageBean);
+        //去重复
+        widget.localImageBeanList = ListUtil.deduplication(widget.localImageBeanList);
+      } else {
+        print('addSdCard-未选择');
+      }
+    });
+    return null;
+  }
   void setList() {
     print('setList');
     listWidget = new List<Widget>();
@@ -101,8 +154,6 @@ class _GridPictureSelectWidgetState extends State<GridPictureSelectWidget> {
 
     return new GestureDetector(
       onTap: () {
-//        PictureUtil.openLargeImages(mContext, imageUrls, Constant.image_type_sdcard, id);
-        toast('replaceImage');
         widget.onReplacePress(id, imageUrls);
       },
       child: new Offstage(
@@ -154,7 +205,6 @@ class _GridPictureSelectWidgetState extends State<GridPictureSelectWidget> {
       children: <Widget>[
         new GestureDetector(
           onTap: () {
-            toast('addImage');
             widget.onAddPress();
           },
           child: new ClipRRect(
@@ -196,7 +246,6 @@ class _GridPictureSelectWidgetState extends State<GridPictureSelectWidget> {
     }
     return new GestureDetector(
       onTap: () {
-        toast('deleteImage');
         widget.onDeletePress(id);
         //调用delete
       },

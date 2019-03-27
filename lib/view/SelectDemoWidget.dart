@@ -51,6 +51,7 @@ class SelectDemoWidgetState extends State<SelectDemoWidget>
   }
 
   void init(){
+    localImageBeanList = new List<LocalImageBean>();
     initProgress();
     initBottomPicker();
   }

@@ -2,18 +2,13 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_layout_test/bean/LocalImageBean.dart';
 import 'package:flutter_layout_test/bean/TestBean.dart';
 import 'package:flutter_layout_test/consts/Constant.dart';
 import 'package:flutter_layout_test/util/PictureUtil.dart';
 import 'package:oktoast/oktoast.dart';
 
-import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:english_words/english_words.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_layout_test/refresh/refresh.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
+
 
 //常量定义
 const String name1 = 'flutter_grid_image_select';
