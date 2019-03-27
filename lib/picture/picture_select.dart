@@ -5,6 +5,7 @@ import 'package:flutter_layout_test/bean/LocalImageBean.dart';
 import 'package:flutter_layout_test/consts/Constant.dart';
 import 'package:flutter_layout_test/dialog/BottomPickerHandler.dart';
 import 'package:flutter_layout_test/dialog/ProgressDialog.dart';
+import 'package:flutter_layout_test/util/ListUtil.dart';
 import 'package:flutter_layout_test/util/PictureUtil.dart';
 import 'package:flutter_layout_test/util/PermissionUtil.dart';
 import 'package:oktoast/oktoast.dart';
@@ -33,7 +34,6 @@ class _PictureSelectWidgetState extends State<PictureSelectWidget> with TickerPr
   ProgressDialog progressDialog;
 
   AnimationController _controller;
-  BottomPickerListener _listener;
   BottomPickerHandler bottomPicker;
 
   //选择器
@@ -66,7 +66,7 @@ class _PictureSelectWidgetState extends State<PictureSelectWidget> with TickerPr
   }
 
   @override
-  useImage(File _image) {
+  bottomSelectImage(File _image) {
     //选择图片后的回调
     // TODO: implement useImage
     int length;
@@ -84,7 +84,7 @@ class _PictureSelectWidgetState extends State<PictureSelectWidget> with TickerPr
         //type
         localImageBeanList.add(localImageBean);
         //去重复
-        localImageBeanList = deduplication(localImageBeanList);
+        localImageBeanList = ListUtil.deduplication(localImageBeanList);
       } else {
         print('addSdCard-未选择');
       }
@@ -492,29 +492,11 @@ class _PictureSelectWidgetState extends State<PictureSelectWidget> with TickerPr
         //type
         localImageBeanList[id].path = image.path;
         //去重复
-        localImageBeanList = deduplication(localImageBeanList);
+        localImageBeanList = ListUtil.deduplication(localImageBeanList);
       } else {
         print('replaceSdCard-未选择');
       }
     });
   }
 
-  //List去重复(Set方式)
-  List<LocalImageBean> deduplication(List<LocalImageBean> list) {
-    Set<String> localImageBeanSet = new Set<String>();
-    for (int i = 0; i < list.length; i++) {
-      localImageBeanSet.add(list[i].path);
-    }
-    print('set:' + localImageBeanSet.toString());
-    list.clear();
-    List setToList = localImageBeanSet.toList(growable: true);
-
-    for (int i = 0; i < setToList.length; i++) {
-      LocalImageBean localImageBean = new LocalImageBean();
-      localImageBean.id = i.toString();
-      localImageBean.path = setToList[i];
-      list.add(localImageBean);
-    }
-    return list;
-  }
 }

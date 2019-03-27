@@ -10,7 +10,8 @@ import 'package:flutter_layout_test/permission/permission.dart';
 import 'package:flutter_layout_test/picture/picture_display.dart';
 import 'package:flutter_layout_test/picture/picture_select.dart';
 import 'package:flutter_layout_test/refresh/refresh.dart';
-import 'package:flutter_layout_test/widget/button.dart';
+import 'package:flutter_layout_test/view/DisplayDemoWidget.dart';
+import 'package:flutter_layout_test/view/SelectDemoWidget.dart';
 import 'package:flutter_layout_test/widget/image.dart';
 import 'package:flutter_layout_test/widget/layout.dart';
 import 'package:flutter_layout_test/widget/text.dart';
@@ -69,7 +70,8 @@ class MyApp extends StatelessWidget {
           '/router/refresh/refresh': (_) => new RefreshWidget(),
           '/router/widget/text': (_) => new TextWidget(),
           '/router/widget/image': (_) => new ImageWidget(),
-          '/router/widget/button': (_) => new ButtonWidget(),
+          '/router/view/select_demo': (_) => new SelectDemoWidget(),
+          '/router/view/display_demo': (_) => new DisplayDemoWidget(),
           '/router/widget/layout': (_) => new LayoutWidget(),
           '/router/ohter/ohter': (_) => new OtherWidget(),
           '/router/network/network': (_) => new NetworkWidget(),
@@ -136,8 +138,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 '/router/widget/text'),
             buildButton("ImageWidget", Colors.white, Colors.deepOrangeAccent,
                 '/router/widget/image'),
-            buildButton("ButtonWidget", Colors.white, Colors.deepOrangeAccent,
-                '/router/widget/button'),
+            buildButton("SelectDemoWidget", Colors.white, Colors.deepOrangeAccent,
+                '/router/view/select_demo'),
+            buildButton("DisplayDemoWidget", Colors.white, Colors.deepOrangeAccent,
+                '/router/view/display_demo'),
             buildButton("LayoutWidget", Colors.white, Colors.deepOrangeAccent,
                 '/router/widget/layout'),
             buildButton("OtherWidget", Colors.white, Colors.deepOrangeAccent,

@@ -9,9 +9,10 @@ import 'package:flutter_layout_test/consts/Constant.dart';
 import 'package:flutter_layout_test/dialog/BottomPickerHandler.dart';
 import 'package:flutter_layout_test/dialog/ProgressDialog.dart';
 import 'package:flutter_layout_test/refresh/refresh.dart';
+import 'package:flutter_layout_test/util/ListUtil.dart';
 import 'package:flutter_layout_test/util/PermissionUtil.dart';
 import 'package:flutter_layout_test/util/PictureUtil.dart';
-import 'package:flutter_layout_test/view/GridImageWidget.dart';
+import 'package:flutter_layout_test/view/GridImageSelectWidget.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:oktoast/oktoast.dart';
@@ -20,129 +21,83 @@ import 'package:simple_permissions/simple_permissions.dart';
 //数据传递
 //原生&flutter互掉
 //常量定义
-const String name1 = 'flutter_widget_button';
+const String name1 = 'flutter_widget_demo';
 
-class ButtonWidget extends StatefulWidget {
-  ButtonWidget({Key key, this.title}) : super(key: key);
+class SelectDemoWidget extends StatefulWidget {
+  SelectDemoWidget({Key key, this.title}) : super(key: key);
   final String title;
 
   @override
-  ButtonWidgetState createState() => ButtonWidgetState();
+  SelectDemoWidgetState createState() => SelectDemoWidgetState();
 }
 
-class ButtonWidgetState extends State<ButtonWidget>
+class SelectDemoWidgetState extends State<SelectDemoWidget>
     with TickerProviderStateMixin
     implements BottomPickerListener {
-  List<LocalImageBean> localImageBeanList;
-  List<String> imageUrls;
+  List<LocalImageBean> localImageBeanList;  //保存数据的泛型实体
 
-//  ProgressDialog progressDialog;
-  AnimationController _controller;
-  BottomPickerListener _listener;
+  ProgressDialog progressDialog;   //加载进度条可选添加
+
+  //底部拍照/相册功能
   BottomPickerHandler bottomPicker;
-
-  bool flag = true;
-
-  //选择器
+  AnimationController bottomAnimationController;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     print("initState");
-    localImageBeanList = new List<LocalImageBean>();
-//    initProgress();
+    init();
+  }
+
+  void init(){
+    initProgress();
     initBottomPicker();
   }
 
-  @override
-  void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
-    super.didChangeDependencies();
-    print("didChangeDependencies");
+  void initProgress() {
+    progressDialog = new ProgressDialog(context);
+    progressDialog.setMessage("Loading...");
+    progressDialog.setTextColor(Colors.black);
+    progressDialog.setTextSize(16);
   }
-
-
-
-  @override
-  void deactivate() {
-    // TODO: implement deactivate
-    super.deactivate();
-    print("deactivate");
-  }
-
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
-    print("dispose");
-  }
-
-
-//  void initProgress() {
-//    progressDialog = new ProgressDialog(context);
-//    progressDialog.setMessage("Loading...");
-//    progressDialog.setTextColor(Colors.black);
-//    progressDialog.setTextSize(16);
-//  }
 
 
   void initBottomPicker() {
-    _controller = new AnimationController(
+    bottomAnimationController = new AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 300),
     );
-
-    bottomPicker = new BottomPickerHandler(this, _controller);
+    bottomPicker = new BottomPickerHandler(this, bottomAnimationController);
     bottomPicker.init();
   }
 
-  //生成MaterialButton
-  Container buildButton(
-      String value, Color textColor, Color background, Function clickEvent()) {
-    return new Container(
-      margin: const EdgeInsets.only(top: 15.0),
-      child: new MaterialButton(
-        child: Text(value),
-        color: background,
-        textColor: textColor,
-        onPressed: () {
-          clickEvent();
-        },
-      ),
-    );
-  }
 
-  Function click1(String value) {
-    print(value);
-
-    return null;
-  }
 
   Future<void> asyncDeleteImage(int id) async {
     try {
-//      progressDialog.show();
+      progressDialog.show();
       await Future.delayed(Duration(milliseconds: 500), () {
         setState(() {
           localImageBeanList.removeAt(id);
         });
-//        progressDialog.hide();
+        progressDialog.hide();
       });
     } catch (e) {
-//      progressDialog.hide();
+      progressDialog.hide();
       print("faild:$e.toString()");
     }
   }
 
   Future<void> asyncReplaceImage(int id) async {
     try {
-//      progressDialog.show();
+      progressDialog.show();
       await Future.delayed(Duration(milliseconds: 500), () {
-//        progressDialog.hide();
+        progressDialog.hide();
         replaceSdCard(id);
       });
     } catch (e) {
-//      progressDialog.hide();
+      progressDialog.hide();
       print("faild:$e.toString()");
     }
   }
@@ -155,7 +110,7 @@ class ButtonWidgetState extends State<ButtonWidget>
         //type
         localImageBeanList[id].path = image.path;
         //去重复
-        localImageBeanList = deduplication(localImageBeanList);
+        localImageBeanList = ListUtil.deduplication(localImageBeanList);
       } else {
         print('replaceSdCard-未选择');
       }
@@ -164,7 +119,7 @@ class ButtonWidgetState extends State<ButtonWidget>
 
   Future<void> asyncAddImage(int id) async {
     try {
-//      progressDialog.show();
+      progressDialog.show();
       await Future.delayed(Duration(milliseconds: 500), () {
         setState(() {
           Future future1 = new Future(() => null);
@@ -187,7 +142,6 @@ class ButtonWidgetState extends State<ButtonWidget>
                       toast('由于用户您选择不在提醒，并且拒绝了权限，请您去系统设置修改相关权限后再进行功能尝试');
                       PermissionUtil.openPermissionSetting();
                     } else if (result2 == PermissionStatus.authorized) {
-//                      addSdCard(id);
                       bottomPicker.showDialog(context);
                     }
                   });
@@ -196,10 +150,10 @@ class ButtonWidgetState extends State<ButtonWidget>
             });
           });
         });
-//        progressDialog.hide();
+        progressDialog.hide();
       });
     } catch (e) {
-//      progressDialog.hide();
+      progressDialog.hide();
       print("faild:$e.toString()");
     }
   }
@@ -225,27 +179,22 @@ class ButtonWidgetState extends State<ButtonWidget>
         body: new ListView(
           physics: BouncingScrollPhysics(),
           children: <Widget>[
-            buildButton(
-                "Button1", Colors.white, Colors.greenAccent, click1("Button1")),
-            buildButton(
-                "Button2", Colors.white, Colors.redAccent, click1("Button2")),
-            buildButton(
-                "Button3", Colors.white, Colors.blueAccent, click1("Button3")),
-            buildButton(
-                "Button4", Colors.white, Colors.green, click1("Button4")),
-            buildButton(
-                "Button5", Colors.white, Colors.amberAccent, click1("Button5")),
+            GridPictureSelectWidget(
+                context,localImageBeanList, 2, addClick, replaceClick, deleteClick
+            ),
+            GridPictureSelectWidget(
+               context,localImageBeanList, 3, addClick, replaceClick, deleteClick
+            ),
+            GridPictureSelectWidget(
+                context,localImageBeanList, 4, addClick, replaceClick, deleteClick
+            ),
+            GridPictureSelectWidget(
+                context,localImageBeanList, 5, addClick, replaceClick, deleteClick
+            ),
+            GridPictureSelectWidget(
+                context,localImageBeanList, 6, addClick, replaceClick, deleteClick
+            ),
 
-            
-            //封装插件使用
-            new GridImageWidget(context).createGridImageGenerator(
-                localImageBeanList,
-                3,
-                20,
-                20,
-                addClick,
-                replaceClick,
-                deleteClick),
           ],
         ));
   }
@@ -260,39 +209,18 @@ class ButtonWidgetState extends State<ButtonWidget>
     return null;
   }
 
-  Function replaceClick(int id) {
-    PictureUtil.openLargeImages(
-        context, imageUrls, Constant.image_type_sdcard, id);
+  Function replaceClick( int id,List<String> imageUrls) {
+    PictureUtil.openLargeImages(context, imageUrls, Constant.image_type_sdcard, id);
     return null;
   }
 
   Function deleteClick(int id) {
-//    showDialog(
-//        context: context,
-//        builder: (_) => new AlertDialog(
-//                title: new Text("提示"),
-//                content: new Text("确认删除？"),
-//                actions: <Widget>[
-//                  new FlatButton(
-//                    child: new Text("取消"),
-//                    onPressed: () {
-//                      Navigator.of(context).pop();
-//                    },
-//                  ),
-//                  new FlatButton(
-//                    child: new Text("确定"),
-//                    onPressed: () {
-//                      Navigator.of(context).pop();
-//
-//                    },
-//                  )
-//                ]));
-//    return null;
     asyncDeleteImage(id);
+    return null;
   }
 
   @override
-  useImage(File _image) {
+  bottomSelectImage(File _image) {
     //选择图片后的回调
     // TODO: implement useImage
     int length;
@@ -310,7 +238,7 @@ class ButtonWidgetState extends State<ButtonWidget>
         //type
         localImageBeanList.add(localImageBean);
         //去重复
-        localImageBeanList = deduplication(localImageBeanList);
+        localImageBeanList = ListUtil.deduplication(localImageBeanList);
       } else {
         print('addSdCard-未选择');
       }
@@ -318,22 +246,4 @@ class ButtonWidgetState extends State<ButtonWidget>
     return null;
   }
 
-//List去重复(Set方式)
-  List<LocalImageBean> deduplication(List<LocalImageBean> list) {
-    Set<String> localImageBeanSet = new Set<String>();
-    for (int i = 0; i < list.length; i++) {
-      localImageBeanSet.add(list[i].path);
-    }
-    print('set:' + localImageBeanSet.toString());
-    list.clear();
-    List setToList = localImageBeanSet.toList(growable: true);
-
-    for (int i = 0; i < setToList.length; i++) {
-      LocalImageBean localImageBean = new LocalImageBean();
-      localImageBean.id = i.toString();
-      localImageBean.path = setToList[i];
-      list.add(localImageBean);
-    }
-    return list;
-  }
 }

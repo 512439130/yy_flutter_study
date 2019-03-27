@@ -53,6 +53,10 @@ class _ImageWidgetState extends State<ImageWidget> {
             new Container(
               height: 200,
               margin: EdgeInsets.fromLTRB(10, 50, 10, 20),
+
+
+
+
               child: new Center(
                 child: new CachedNetworkImage(
                   fit: BoxFit.fitWidth,
