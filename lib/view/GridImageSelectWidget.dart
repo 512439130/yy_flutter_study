@@ -185,20 +185,28 @@ class _GridPictureSelectWidgetState extends State<GridPictureSelectWidget> with 
 
 //本地图片，（加号）
   Widget localImage(String path) {
-    double addWidthOrHeight = 0;
+    double addWidthOrHeight ;
+    double padding;
     if(widget.crossAxisCount == 2){
       addWidthOrHeight = 120;
+      padding = 20;
     }else if(widget.crossAxisCount == 3){
       addWidthOrHeight = 60;
+      padding = 20;
     }else if(widget.crossAxisCount == 4){
       addWidthOrHeight = 35;
+      padding = 20;
     }else if(widget.crossAxisCount == 5){
       addWidthOrHeight = 20;
+      padding = 20;
     }else if(widget.crossAxisCount == 6){
-      addWidthOrHeight = 12;
+      addWidthOrHeight = 15;
+      padding = 10;
     }else{
       addWidthOrHeight = 60;
+      padding = 20;
     }
+
     return new Stack(
       alignment: Alignment.center, //指定未定位或部分定位widget的对齐方式
       overflow: Overflow.visible,
@@ -210,7 +218,8 @@ class _GridPictureSelectWidgetState extends State<GridPictureSelectWidget> with 
           child: new ClipRRect(
             child: new Container(
               color: const Color(0xFFF7F8FA),
-              padding: const EdgeInsets.all(20),
+
+              padding: widget.crossAxisCount==6?const EdgeInsets.all(10):const EdgeInsets.all(20),
               child: new Image.asset(path,
                   width: addWidthOrHeight,
                   height: addWidthOrHeight,
