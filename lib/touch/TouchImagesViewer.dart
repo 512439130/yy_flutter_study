@@ -8,14 +8,15 @@ import 'package:flutter_layout_test/util/ToastUtil.dart';
 const String title = '多图片详情';
 const double _kMinFlingVelocity = 500.0; //放大缩小速率
 
-int _selectIndex;
+int _selectIndex; //选中位置
+//给PageView加上特效
 
-class MultiTouchPage2 extends StatelessWidget {
+class TouchImagesViewer extends StatelessWidget {
   final List<String> imageUrls;
   final String type; //网络图片，本地图片
   final int startIndex;
 
-  MultiTouchPage2(this.imageUrls, this.type, this.startIndex);
+  TouchImagesViewer(this.imageUrls, this.type, this.startIndex);
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +30,7 @@ class MultiTouchPage2 extends StatelessWidget {
         children: <Widget>[
           new Scaffold(
             backgroundColor: Colors.blueGrey,
-            body: new MultiTouchAppPage(imageUrls, type, startIndex),
+            body: new TouchViewerPage(imageUrls, type, startIndex),
           ),
           new Offstage(
             //使用Offstage 控制widget在tree中的显示和隐藏
@@ -53,14 +54,14 @@ class MultiTouchPage2 extends StatelessWidget {
   }
 }
 
-class MultiTouchAppPage extends StatefulWidget {
+class TouchViewerPage extends StatefulWidget {
   final List<String> imageUrls;
   final String type;
   final int startIndex;
   int selectIndex;
   bool isVisibleTip = true; //是否显示tip  true:显示  false:隐藏
 
-  MultiTouchAppPage(this.imageUrls, this.type, this.startIndex);
+  TouchViewerPage(this.imageUrls, this.type, this.startIndex);
 
   @override
   State<StatefulWidget> createState() {
@@ -68,7 +69,7 @@ class MultiTouchAppPage extends StatefulWidget {
   }
 }
 
-class TouchImagesViewerPage extends State<MultiTouchAppPage>
+class TouchImagesViewerPage extends State<TouchViewerPage>
     with SingleTickerProviderStateMixin {
   AnimationController _animationController;
   Animation<Offset> _flingAnimation;
@@ -78,6 +79,8 @@ class TouchImagesViewerPage extends State<MultiTouchAppPage>
   double _previousScale;
 
   PageController _pageController;
+
+  var pageOffset = 0.0; //百分比  //左右切换的百分比
 
   @override
   void initState() {
@@ -90,14 +93,22 @@ class TouchImagesViewerPage extends State<MultiTouchAppPage>
     _selectIndex = widget.startIndex; //初始化为点击进入index
     print("widget.imageUrls.length:" + widget.imageUrls.length.toString());
 
-    for(int i = 0 ; i<widget.imageUrls.length;i++){
+    for (int i = 0; i < widget.imageUrls.length; i++) {
       print("widget.imageUrls[]:" + widget.imageUrls[i].toString());
     }
   }
 
   void initControl() {
-    _animationController = new AnimationController(vsync: this)..addListener(_handleFlingAnimation);
-    _pageController = PageController(initialPage: widget.startIndex); //指定position打开
+    _animationController = new AnimationController(vsync: this)
+      ..addListener(_handleFlingAnimation);
+    _pageController =
+        PageController(initialPage: widget.startIndex); //指定position打开
+    _pageController.addListener(() {
+      setState(() {
+        //controller.offset获取到的是逻辑像素值，也就是0到200*(N-1)的数值，每翻一页，都会有从0到到200的增量，翻到最后一页就是600。把这个值除以宽度200，得到一个以每页宽度为单位的偏移百分比数值，并保存到_MyHomePageState的成员变量pageOffset中，以便渲染Item使用。
+        pageOffset = _pageController.offset / 200;
+      });
+    });
   }
 
   @override
@@ -149,10 +160,12 @@ class TouchImagesViewerPage extends State<MultiTouchAppPage>
     if (magnitude < _kMinFlingVelocity) return;
     final Offset direction = details.velocity.pixelsPerSecond / magnitude;
     final double distance = (Offset.zero & context.size).shortestSide;
-    _flingAnimation = new Tween<Offset>(begin: _offset, end: _clampOffset(_offset + direction * distance)).animate(_animationController);
-    _animationController..value = 0.0..fling(velocity: magnitude / 1000.0);
-
-    print("_handleOnScaleEnd-_flingAnimation$_flingAnimation");
+    _flingAnimation = new Tween<Offset>(
+            begin: _offset, end: _clampOffset(_offset + direction * distance))
+        .animate(_animationController);
+    _animationController
+      ..value = 0.0
+      ..fling(velocity: magnitude / 1000.0);
   }
 
   @override
@@ -176,11 +189,11 @@ class TouchImagesViewerPage extends State<MultiTouchAppPage>
                 onPageChanged: onPageChanged, //滑动
                 itemBuilder: (context, index) {
                   return Center(
-                      child: Image.file(
-                        new File(widget.imageUrls[index]),
-                        fit: BoxFit.contain,
-                        height: 300,
-                      ),
+                    child: Image.file(
+                      new File(widget.imageUrls[index]),
+                      fit: BoxFit.contain,
+                      height: 300,
+                    ),
                   );
                 }),
           ),
@@ -203,12 +216,12 @@ class TouchImagesViewerPage extends State<MultiTouchAppPage>
                 controller: _pageController,
                 onPageChanged: onPageChanged, //滑动
                 itemBuilder: (context, index) {
-                  return Center(
-                      child: new Image(
-                          fit: BoxFit.contain,
-                          height: 400,
-                          image: new CachedNetworkImageProvider(widget.imageUrls[index],)
-                      ),
+                  return new Center(
+                    child: new Image(
+                      fit: BoxFit.contain,
+                      height: 400,
+                      image: new CachedNetworkImageProvider(widget.imageUrls[index]),
+                    ),
                   );
                 }),
           ),
@@ -217,13 +230,12 @@ class TouchImagesViewerPage extends State<MultiTouchAppPage>
     }
   }
 
+
   onPageChanged(index) {
     setState(() {
       _selectIndex = index;
       widget.selectIndex = index;
-
       resetImageState();
-      print('选择第$index图片');
     });
   }
 

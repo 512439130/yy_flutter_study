@@ -171,7 +171,9 @@ enum BarItemActionType {
 class AppRovalBarRightWidget extends StatefulWidget {
   var type = BarItemActionType.More;
   final Function(BarItemActionType type) onPress;
-  AppRovalBarRightWidget({this.onPress});
+  AppRovalBarRightWidget({
+        this.onPress
+  });
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState

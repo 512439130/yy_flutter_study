@@ -8,11 +8,11 @@ import 'package:flutter_layout_test/util/ToastUtil.dart';
 const String title = '多图片详情';
 const double _kMinFlingVelocity = 500.0; //放大缩小速率
 
-class TouchImageViewerPage extends StatelessWidget {
+class TouchImageViewer extends StatelessWidget {
   final String imgUrl;
   final String type; //网络图片，本地图片
 
-  TouchImageViewerPage(this.imgUrl, this.type);
+  TouchImageViewer(this.imgUrl, this.type);
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +31,7 @@ class TouchImageViewerPage extends StatelessWidget {
 //              backgroundColor: const Color(0xFFFFFFFF),
 //              title: Text(title),
 //            ),
-            body: new MultiTouchAppPage(imgUrl, type),
+            body: new TouchViewerPage(imgUrl, type),
           ),
           new Container(
             margin: const EdgeInsets.all(30.0),
@@ -51,19 +51,19 @@ class TouchImageViewerPage extends StatelessWidget {
   }
 }
 
-class MultiTouchAppPage extends StatefulWidget {
+class TouchViewerPage extends StatefulWidget {
   final String imgUrl;
   final String type;
 
-  MultiTouchAppPage(this.imgUrl, this.type);
+  TouchViewerPage(this.imgUrl, this.type);
 
   @override
   State<StatefulWidget> createState() {
-    return new _MultiTouchAppPage();
+    return new TouchImageViewerPage();
   }
 }
 
-class _MultiTouchAppPage extends State<MultiTouchAppPage>
+class TouchImageViewerPage extends State<TouchViewerPage>
     with SingleTickerProviderStateMixin {
   AnimationController _controller;
   Animation<Offset> _flingAnimation;

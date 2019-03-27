@@ -15,7 +15,7 @@ class PictureUtil{
     Navigator.of(context).push(new PageRouteBuilder(
         opaque: false,
         pageBuilder: (BuildContext context, _, __) {
-          return new TouchImageViewerPage(url,type);
+          return new TouchImageViewer(url,type);
         },
         transitionsBuilder: (_, Animation<double> animation, __, Widget widget) {
           return new FadeTransition(
@@ -42,7 +42,7 @@ class PictureUtil{
     Navigator.of(context).push(new PageRouteBuilder(
         opaque: false,
         pageBuilder: (BuildContext context, _, __) {
-          return new MultiTouchPage2(imageUrls,type,startIndex);
+          return new TouchImagesViewer(imageUrls,type,startIndex);
         },
         transitionsBuilder: (_, Animation<double> animation, __, Widget widget) {
           return new FadeTransition(

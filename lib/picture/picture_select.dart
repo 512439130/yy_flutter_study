@@ -23,9 +23,7 @@ class PictureSelectWidget extends StatefulWidget {
   _PictureSelectWidgetState createState() => _PictureSelectWidgetState();
 }
 
-class _PictureSelectWidgetState extends State<PictureSelectWidget>
-    with TickerProviderStateMixin
-    implements BottomPickerListener {
+class _PictureSelectWidgetState extends State<PictureSelectWidget> with TickerProviderStateMixin implements BottomPickerListener {
   final TextEditingController _textFieldController =
       new TextEditingController();
   List<Widget> listWidget;
@@ -149,6 +147,7 @@ class _PictureSelectWidgetState extends State<PictureSelectWidget>
     }
   }
 
+  //sdcard图片，携带删除控制按钮
   Widget sdCardImage(int id, String path) {
     return new Stack(
       alignment: Alignment.center, //指定未定位或部分定位widget的对齐方式
@@ -168,45 +167,16 @@ class _PictureSelectWidgetState extends State<PictureSelectWidget>
     );
   }
 
-  Widget localImage(String path, BoxFit fit) {
-    return new Stack(
-      alignment: Alignment.center, //指定未定位或部分定位widget的对齐方式
-      overflow: Overflow.visible,
-      children: <Widget>[
-        new Container(
-            color: const Color(0xFFF7F8FA),
-            padding: const EdgeInsets.all(15),
-            child: getLocalImage(path, fit)),
-      ],
-    );
-  }
 
-  Widget getLocalImage(String path, BoxFit fit) {
-    return new GestureDetector(
-      onTap: () {
-        int defaultLength = 1;
-        if (localImageBeanList != null && localImageBeanList.length > 0) {
-          asyncAddImage(localImageBeanList.length + 1);
-        } else {
-          asyncAddImage(defaultLength);
-        }
-      },
-      child: new Image.asset(
-        path,
-        width: 30,
-        height: 30,
-        fit: BoxFit.fitWidth,
-        //alignment：摆放位置
-//        alignment: Alignment.center,
-      ),
-    );
-  }
+
+
 
   Widget getSdCardImage(int id, bool offstage, String path, BoxFit fit) {
     return new GestureDetector(
       onTap: () {
 //        asyncReplaceImage(id);
-        PictureUtil.openLargeImages(context, imageUrls, Constant.image_type_sdcard, id);
+        PictureUtil.openLargeImages(
+            context, imageUrls, Constant.image_type_sdcard, id);
       },
       child: new Offstage(
         //使用Offstage 控制widget在tree中的显示和隐藏
@@ -232,7 +202,35 @@ class _PictureSelectWidgetState extends State<PictureSelectWidget>
       ),
     );
   }
-
+//本地图片，（加号）
+  Widget localImage(String path, BoxFit fit) {
+    return new Stack(
+      alignment: Alignment.center, //指定未定位或部分定位widget的对齐方式
+      overflow: Overflow.visible,
+      children: <Widget>[
+        new GestureDetector(
+          onTap: () {
+            int defaultLength = 1;
+            if (localImageBeanList != null && localImageBeanList.length > 0) {
+              asyncAddImage(localImageBeanList.length + 1);
+            } else {
+              asyncAddImage(defaultLength);
+            }
+          },
+          child: new Container(
+            color: const Color(0xFFF7F8FA),
+            padding: const EdgeInsets.all(20),
+            child: new Image.asset(
+                path,
+                width: 40,
+                height: 40,
+                fit: BoxFit.fitWidth
+            ),
+          ),
+        ),
+      ],
+    );
+  }
   Widget getDeleteIcon(int id) {
     return new GestureDetector(
       onTap: () {
