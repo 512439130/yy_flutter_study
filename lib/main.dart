@@ -7,13 +7,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_layout_test/network/network.dart';
 import 'package:flutter_layout_test/other/other.dart';
 import 'package:flutter_layout_test/permission/permission.dart';
+import 'package:flutter_layout_test/picture/picture_display.dart';
+import 'package:flutter_layout_test/picture/picture_select.dart';
 import 'package:flutter_layout_test/refresh/refresh.dart';
 import 'package:flutter_layout_test/widget/button.dart';
 import 'package:flutter_layout_test/widget/image.dart';
 import 'package:flutter_layout_test/widget/layout.dart';
 import 'package:flutter_layout_test/widget/text.dart';
-import 'package:flutter_layout_test/work/work.dart';
-import 'package:flutter_layout_test/work/work2.dart';
+
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:oktoast/oktoast.dart';
 
@@ -72,8 +73,8 @@ class MyApp extends StatelessWidget {
           '/router/widget/layout': (_) => new LayoutWidget(),
           '/router/ohter/ohter': (_) => new OtherWidget(),
           '/router/network/network': (_) => new NetworkWidget(),
-          '/router/work/work': (_) => new WorkWidget(),
-          '/router/work/work2': (_) => new Work2Widget(),
+          '/router/picture/picture_select': (_) => new PictureSelectWidget(),
+          '/router/picture/picture_display': (_) => new PictureDisplayWidget(),
           '/router/permission/permission': (_) => new PermissionWidget(),
         },
       ),
@@ -143,10 +144,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 '/router/ohter/ohter'),
             buildButton("NetworkWidget", Colors.white, Colors.deepOrangeAccent,
                 '/router/network/network'),
-            buildButton("WorkWidget", Colors.white, Colors.deepOrangeAccent,
-                '/router/work/work'),
-            buildButton("Work2Widget", Colors.white, Colors.deepOrangeAccent,
-                '/router/work/work2'),
+            buildButton("PictureSelectWidget", Colors.white, Colors.deepOrangeAccent,
+                '/router/picture/picture_select'),
+            buildButton("PictureDisplayWidget", Colors.white, Colors.deepOrangeAccent,
+                '/router/picture/picture_display'),
             buildButton("PermissionWidget", Colors.white,
                 Colors.deepOrangeAccent, '/router/permission/permission'),
           ],

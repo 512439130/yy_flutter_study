@@ -4,7 +4,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_layout_test/bean/Datas.dart';
 import 'package:flutter_layout_test/bean/TestBean.dart';
+import 'package:flutter_layout_test/consts/Constant.dart';
 import 'package:flutter_layout_test/dialog/ProgressDialog.dart';
+import 'package:flutter_layout_test/touch/TouchImageViewer.dart';
+import 'package:flutter_layout_test/util/PictureUtil.dart';
 import 'package:flutter_layout_test/util/PermissionUtil.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:image_picker/image_picker.dart';
@@ -18,21 +21,21 @@ import 'package:simple_permissions/simple_permissions.dart';
 //常量定义
 const String name1 = '费用报销';
 
-class Work2Widget extends StatefulWidget {
-  Work2Widget({Key key, this.title}) : super(key: key);
+class PictureDisplayWidget extends StatefulWidget {
+  PictureDisplayWidget({Key key, this.title}) : super(key: key);
   final String title;
 
   @override
-  _Work2WidgetState createState() => _Work2WidgetState();
+  _PictureDisplayWidgetState createState() => _PictureDisplayWidgetState();
 }
 
-class _Work2WidgetState extends State<Work2Widget> {
+class _PictureDisplayWidgetState extends State<PictureDisplayWidget> {
   List<Widget> listWidget;
   String testJsonValue;
   Map<String, dynamic> json;
   TestBean testBean = new TestBean();
   ProgressDialog progressDialog;
-
+  List<String> imageUrls;
 
   @override
   void initState() {
@@ -40,10 +43,7 @@ class _Work2WidgetState extends State<Work2Widget> {
     super.initState();
     print("initState");
     initProgress();
-
-
     init();
-
 
   }
 
@@ -54,7 +54,7 @@ class _Work2WidgetState extends State<Work2Widget> {
     print("didChangeDependencies");
   }
   @override
-  void didUpdateWidget(Work2Widget oldWidget) {
+  void didUpdateWidget(PictureDisplayWidget oldWidget) {
     // TODO: implement didUpdateWidget
     super.didUpdateWidget(oldWidget);
     print("didUpdateWidget");
@@ -74,13 +74,14 @@ class _Work2WidgetState extends State<Work2Widget> {
 
 //  //初始化
   void init() {
+
     testJsonValue =
         '{"datas":[{"id":"1","url":"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1553505918721&di=30abbc97f9b299cad7de51a06cbee078&imgtype=0&src=http%3A%2F%2Fimg15.3lian.com%2F2015%2Ff2%2F57%2Fd%2F93.jpg"},{"id":"2","url":"https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=80538588,251590437&fm=26&gp=0.png"},{"id":"3","url":"https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=3597303668,2750618423&fm=26&gp=0.png"},{"id":"4","url":"https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=61077523,1715146142&fm=26&gp=0.png"},{"id":"5","url":"https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=4087213632,1096565806&fm=26&gp=0.png"},{"id":"6","url":"https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=3597303668,2750618423&fm=26&gp=0.png"}],"resMsg":{"message":"success !","method":null,"code":"1"}}';
     if (testJsonValue != null) {
       json = jsonDecode(testJsonValue);
       testBean = TestBean.fromJson(json);
-      setList();
     }
+
   }
 
   void initProgress() {
@@ -96,9 +97,12 @@ class _Work2WidgetState extends State<Work2Widget> {
   void setList() {
     //listWidget
     listWidget = new List<Widget>();
+    imageUrls = new List<String>();
     for (int i = 0; i < testBean.datas.length; i++) {
       if (i < testBean.datas.length - 1) {
         listWidget.add(networkImage(i, testBean.datas[i].url));
+
+        imageUrls.add(testBean.datas[i].url);
       }
     }
 
@@ -122,6 +126,10 @@ class _Work2WidgetState extends State<Work2Widget> {
 
   Widget getNetImage(int id, bool offstage, String url, BoxFit fit) {
     return new GestureDetector(
+      onTap:(){
+//        ImageUtil.openLargeImage(context,url,Constant.image_type_network);
+        PictureUtil.openLargeImages(context, imageUrls, Constant.image_type_network,id);
+      },
       child: new Offstage(
         //使用Offstage 控制widget在tree中的显示和隐藏
         offstage: offstage,
@@ -183,7 +191,6 @@ class _Work2WidgetState extends State<Work2Widget> {
   @override
   Widget build(BuildContext context) {
     print("build");
-
     setList();
 
     return Scaffold(
@@ -274,6 +281,8 @@ class _Work2WidgetState extends State<Work2Widget> {
 //      progressDialog.hide();
 //    });
   }
+
+
 
 
 }

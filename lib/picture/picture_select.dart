@@ -2,39 +2,41 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_layout_test/bean/LocalImageBean.dart';
+import 'package:flutter_layout_test/consts/Constant.dart';
 import 'package:flutter_layout_test/dialog/BottomPickerHandler.dart';
 import 'package:flutter_layout_test/dialog/ProgressDialog.dart';
+import 'package:flutter_layout_test/util/PictureUtil.dart';
 import 'package:flutter_layout_test/util/PermissionUtil.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:image_picker/image_picker.dart';
-
-
 
 import 'package:simple_permissions/simple_permissions.dart';
 
 //常量定义
 const String name1 = '拒绝审批';
 
-class WorkWidget extends StatefulWidget {
-  WorkWidget({Key key, this.title}) : super(key: key);
+class PictureSelectWidget extends StatefulWidget {
+  PictureSelectWidget({Key key, this.title}) : super(key: key);
   final String title;
 
   @override
-  _WorkWidgetState createState() => _WorkWidgetState();
+  _PictureSelectWidgetState createState() => _PictureSelectWidgetState();
 }
 
-class _WorkWidgetState extends State<WorkWidget>with TickerProviderStateMixin implements BottomPickerListener {
+class _PictureSelectWidgetState extends State<PictureSelectWidget>
+    with TickerProviderStateMixin
+    implements BottomPickerListener {
   final TextEditingController _textFieldController =
       new TextEditingController();
   List<Widget> listWidget;
   List<LocalImageBean> localImageBeanList;
+  List<String> imageUrls;
 
   ProgressDialog progressDialog;
 
   AnimationController _controller;
   BottomPickerListener _listener;
   BottomPickerHandler bottomPicker;
-
 
   //选择器
 
@@ -47,6 +49,7 @@ class _WorkWidgetState extends State<WorkWidget>with TickerProviderStateMixin im
     initProgress();
     initBottomPicker();
   }
+
   void initProgress() {
     progressDialog = new ProgressDialog(context);
     progressDialog.setMessage("Loading...");
@@ -60,12 +63,13 @@ class _WorkWidgetState extends State<WorkWidget>with TickerProviderStateMixin im
       duration: const Duration(milliseconds: 500),
     );
 
-    bottomPicker=new BottomPickerHandler(this,_controller);
+    bottomPicker = new BottomPickerHandler(this, _controller);
     bottomPicker.init();
   }
 
   @override
   useImage(File _image) {
+    //选择图片后的回调
     // TODO: implement useImage
     int length;
     if (localImageBeanList != null && localImageBeanList.length > 0) {
@@ -74,7 +78,7 @@ class _WorkWidgetState extends State<WorkWidget>with TickerProviderStateMixin im
       length = 1;
     }
     setState(() {
-      if(_image != null){
+      if (_image != null) {
         print('addSdCard');
         LocalImageBean localImageBean = new LocalImageBean();
         localImageBean.id = length.toString();
@@ -83,13 +87,13 @@ class _WorkWidgetState extends State<WorkWidget>with TickerProviderStateMixin im
         localImageBeanList.add(localImageBean);
         //去重复
         localImageBeanList = deduplication(localImageBeanList);
-      }else{
+      } else {
         print('addSdCard-未选择');
       }
-
     });
     return null;
   }
+
   @override
   void didChangeDependencies() {
     // TODO: implement didChangeDependencies
@@ -98,7 +102,7 @@ class _WorkWidgetState extends State<WorkWidget>with TickerProviderStateMixin im
   }
 
   @override
-  void didUpdateWidget(WorkWidget oldWidget) {
+  void didUpdateWidget(PictureSelectWidget oldWidget) {
     // TODO: implement didUpdateWidget
     super.didUpdateWidget(oldWidget);
     print("didUpdateWidget");
@@ -123,19 +127,19 @@ class _WorkWidgetState extends State<WorkWidget>with TickerProviderStateMixin im
     localImageBeanList = new List<LocalImageBean>();
   }
 
-
-
-
   void setList() {
     print('setList');
     //listWidget
     //每次生成新的图片数组
     listWidget = new List<Widget>();
+    imageUrls = new List<String>();
+
     if (localImageBeanList != null && localImageBeanList.length > 0) {
       print('localImageBeanList!=0');
       for (int i = 0; i < localImageBeanList.length; i++) {
         listWidget.add(sdCardImage(i, localImageBeanList[i].path));
-        print('localImageBeanList-path:' + localImageBeanList[0].path);
+        imageUrls.add(localImageBeanList[i].path);
+        print('localImageBeanList-path:' + localImageBeanList[i].path);
       }
       //每次在尾部加添加图片
       listWidget.add(localImage('images/icon_add.png', BoxFit.cover));
@@ -144,8 +148,6 @@ class _WorkWidgetState extends State<WorkWidget>with TickerProviderStateMixin im
       listWidget.add(localImage('images/icon_add.png', BoxFit.cover));
     }
   }
-
-
 
   Widget sdCardImage(int id, String path) {
     return new Stack(
@@ -188,8 +190,6 @@ class _WorkWidgetState extends State<WorkWidget>with TickerProviderStateMixin im
         } else {
           asyncAddImage(defaultLength);
         }
-
-        //调用replace
       },
       child: new Image.asset(
         path,
@@ -205,7 +205,8 @@ class _WorkWidgetState extends State<WorkWidget>with TickerProviderStateMixin im
   Widget getSdCardImage(int id, bool offstage, String path, BoxFit fit) {
     return new GestureDetector(
       onTap: () {
-        asyncReplaceImage(id);
+//        asyncReplaceImage(id);
+        PictureUtil.openLargeImages(context, imageUrls, Constant.image_type_sdcard, id);
       },
       child: new Offstage(
         //使用Offstage 控制widget在tree中的显示和隐藏
@@ -231,7 +232,6 @@ class _WorkWidgetState extends State<WorkWidget>with TickerProviderStateMixin im
       ),
     );
   }
-
 
   Widget getDeleteIcon(int id) {
     return new GestureDetector(
@@ -368,12 +368,11 @@ class _WorkWidgetState extends State<WorkWidget>with TickerProviderStateMixin im
 
   Function buttonClick1() {
     setState(() {
-      if(localImageBeanList != null && localImageBeanList.length > 0){
+      if (localImageBeanList != null && localImageBeanList.length > 0) {
         toast('已选择：$localImageBeanList');
-      }else{
+      } else {
         toast('你还未选择图片');
       }
-
     });
     return null;
   }
@@ -435,29 +434,27 @@ class _WorkWidgetState extends State<WorkWidget>with TickerProviderStateMixin im
             PermissionUtil.requestPermission(Permission.WriteExternalStorage)
                 .then((result) {
               print("requestPermission-WriteExternalStorage$result");
-              if(result == PermissionStatus.deniedNeverAsk){
+              if (result == PermissionStatus.deniedNeverAsk) {
                 //setting
                 toast('由于用户您选择不在提醒，并且拒绝了权限，请您去系统设置修改相关权限后再进行功能尝试');
                 PermissionUtil.openPermissionSetting();
-              }else if(result == PermissionStatus.authorized){
+              } else if (result == PermissionStatus.authorized) {
                 Future future2 = new Future(() => null);
                 future2.then((_) {
                   PermissionUtil.requestPermission(Permission.Camera)
                       .then((result2) {
                     print("requestPermission-Camera$result2");
-                    if(result2 == PermissionStatus.deniedNeverAsk){
+                    if (result2 == PermissionStatus.deniedNeverAsk) {
                       //setting
                       toast('由于用户您选择不在提醒，并且拒绝了权限，请您去系统设置修改相关权限后再进行功能尝试');
                       PermissionUtil.openPermissionSetting();
-
-                    }else if(result2 == PermissionStatus.authorized){
+                    } else if (result2 == PermissionStatus.authorized) {
 //                      addSdCard(id);
                       bottomPicker.showDialog(context);
                     }
                   });
                 });
               }
-
             });
           });
         });
@@ -468,8 +465,6 @@ class _WorkWidgetState extends State<WorkWidget>with TickerProviderStateMixin im
       print("faild:$e.toString()");
     }
   }
-
-
 
 //  Future<void> addSdCard(int id) async {
 //    var image = await ImagePicker.pickImage(source: ImageSource.gallery);
@@ -494,29 +489,29 @@ class _WorkWidgetState extends State<WorkWidget>with TickerProviderStateMixin im
   Future<void> replaceSdCard(int id) async {
     var image = await ImagePicker.pickImage(source: ImageSource.gallery);
     setState(() {
-      if(image != null){
+      if (image != null) {
         print('replaceSdCard');
         //type
-        localImageBeanList[id].path=image.path;
+        localImageBeanList[id].path = image.path;
         //去重复
         localImageBeanList = deduplication(localImageBeanList);
-      }else{
+      } else {
         print('replaceSdCard-未选择');
       }
     });
   }
 
   //List去重复(Set方式)
-  List<LocalImageBean> deduplication(List<LocalImageBean> list){
+  List<LocalImageBean> deduplication(List<LocalImageBean> list) {
     Set<String> localImageBeanSet = new Set<String>();
-    for(int i = 0;i<list.length;i++){
+    for (int i = 0; i < list.length; i++) {
       localImageBeanSet.add(list[i].path);
     }
-    print('set:'+localImageBeanSet.toString());
+    print('set:' + localImageBeanSet.toString());
     list.clear();
     List setToList = localImageBeanSet.toList(growable: true);
 
-    for(int i = 0 ; i<setToList.length;i++){
+    for (int i = 0; i < setToList.length; i++) {
       LocalImageBean localImageBean = new LocalImageBean();
       localImageBean.id = i.toString();
       localImageBean.path = setToList[i];
@@ -524,8 +519,4 @@ class _WorkWidgetState extends State<WorkWidget>with TickerProviderStateMixin im
     }
     return list;
   }
-
-
-
-
 }
