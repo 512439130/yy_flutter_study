@@ -16,20 +16,19 @@ import 'package:flutter/services.dart';
 import 'package:flutter_layout_test/refresh/refresh.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
-//常量定义
-const String name1 = 'flutter_grid_image_select';
+
 
 //图片GridView选择功能
 class GridPictureSelectWidget extends StatefulWidget {
-  BuildContext mContext;
   List<LocalImageBean> localImageBeanList;
-  int crossAxisCount;
-
+  double count;  //每行个数
+  double maxWidth;//最大宽度
+  double roundArc;//圆角弧度
   Function() onAddPress;
   Function(int id, List<String> urls) onReplacePress;
   Function(int) onDeletePress;
 
-  GridPictureSelectWidget(this.mContext, this.localImageBeanList, this.crossAxisCount, this.onAddPress, this.onReplacePress, this.onDeletePress);
+  GridPictureSelectWidget(this.localImageBeanList, this.count,this.maxWidth,this.roundArc, this.onAddPress, this.onReplacePress, this.onDeletePress);
   @override
   _GridPictureSelectWidgetState createState() => _GridPictureSelectWidgetState();
 }
@@ -43,13 +42,21 @@ class _GridPictureSelectWidgetState extends State<GridPictureSelectWidget> with 
 
   AnimationController _controller;
   BottomPickerHandler bottomPicker;
+
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     print("initState");
+    init();
     initProgress();
     initBottomPicker();
+  }
+
+  //获取屏幕宽高
+  void init() {
+//   Size mScreenSize = MediaQuery.of(widget.mContext).size;
   }
 
   void initProgress() {
@@ -107,9 +114,9 @@ class _GridPictureSelectWidgetState extends State<GridPictureSelectWidget> with 
         print("test:" + widget.localImageBeanList[i].path);
       }
       //每次在尾部加添加图片
-      listWidget.add(localImage('images/icon_add.png'));
+      listWidget.add(localImage());
     } else {
-      listWidget.add(localImage('images/icon_add.png'));
+      listWidget.add(localImage());
     }
   }
 
@@ -137,20 +144,17 @@ class _GridPictureSelectWidgetState extends State<GridPictureSelectWidget> with 
   }
 
   Widget getSdCardImage(int id, bool offstage, String path) {
-    double imageWidthOrHeight = 0;
-    if(widget.crossAxisCount == 2){
-      imageWidthOrHeight = 160;
-    }else if(widget.crossAxisCount == 3){
-      imageWidthOrHeight = 100;
-    }else if(widget.crossAxisCount == 4){
-      imageWidthOrHeight = 70;
-    }else if(widget.crossAxisCount == 5){
-      imageWidthOrHeight = 55;
-    }else if(widget.crossAxisCount == 6){
-      imageWidthOrHeight = 30;
-    }else{
-      imageWidthOrHeight = 100;
-    }
+    double imageWidthOrHeight;
+    double count = widget.count;
+    double maxWidth = widget.maxWidth;
+      double mItemSpacing = 4;
+      imageWidthOrHeight = (maxWidth/count) - ((count) * (mItemSpacing/count * 2)) - mItemSpacing * 1.5;
+
+
+    print("count:"+count.toString());
+    print("mScreenWidth:"+maxWidth.toString());
+    print("imageWidthOrHeight:"+imageWidthOrHeight.toString());
+
 
     return new GestureDetector(
       onTap: () {
@@ -173,10 +177,10 @@ class _GridPictureSelectWidgetState extends State<GridPictureSelectWidget> with 
           ),
           //圆角
           borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(5),
-            topRight: Radius.circular(5),
-            bottomLeft: Radius.circular(5),
-            bottomRight: Radius.circular(5),
+            topLeft: Radius.circular(widget.roundArc),
+            topRight: Radius.circular(widget.roundArc),
+            bottomLeft: Radius.circular(widget.roundArc),
+            bottomRight: Radius.circular(widget.roundArc),
           ),
         ),
       ),
@@ -184,28 +188,24 @@ class _GridPictureSelectWidgetState extends State<GridPictureSelectWidget> with 
   }
 
 //本地图片，（加号）
-  Widget localImage(String path) {
+  Widget localImage() {
     double addWidthOrHeight ;
-    double padding;
-    if(widget.crossAxisCount == 2){
-      addWidthOrHeight = 120;
-      padding = 20;
-    }else if(widget.crossAxisCount == 3){
-      addWidthOrHeight = 60;
-      padding = 20;
-    }else if(widget.crossAxisCount == 4){
-      addWidthOrHeight = 35;
-      padding = 20;
-    }else if(widget.crossAxisCount == 5){
-      addWidthOrHeight = 20;
-      padding = 20;
-    }else if(widget.crossAxisCount == 6){
-      addWidthOrHeight = 15;
-      padding = 10;
-    }else{
-      addWidthOrHeight = 60;
-      padding = 20;
-    }
+    double padding ;
+    double margin = 7;
+    double count = widget.count;
+    double maxWidth = widget.maxWidth;
+
+      double mItemSpacing = 4;
+      padding = (25 - (count*2)).toDouble();
+      addWidthOrHeight = (maxWidth/count) - ((count) * (mItemSpacing/count * 2)) - mItemSpacing * 1.5;
+
+
+    print("count:"+count.toString());
+    print("padding:"+padding.toString());
+    print("mScreenWidth:"+maxWidth.toString());
+    print("addWidthOrHeight:"+addWidthOrHeight.toString());
+
+
 
     return new Stack(
       alignment: Alignment.center, //指定未定位或部分定位widget的对齐方式
@@ -218,19 +218,20 @@ class _GridPictureSelectWidgetState extends State<GridPictureSelectWidget> with 
           child: new ClipRRect(
             child: new Container(
               color: const Color(0xFFF7F8FA),
-
-              padding: widget.crossAxisCount==6?const EdgeInsets.all(10):const EdgeInsets.all(20),
-              child: new Image.asset(path,
+              padding: EdgeInsets.all(padding),
+              width: addWidthOrHeight,
+              height: addWidthOrHeight,
+              child: new Image.asset('images/icon_add.png',
                   width: addWidthOrHeight,
                   height: addWidthOrHeight,
                   fit: BoxFit.cover),
             ),
             //圆角
             borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(5),
-              topRight: Radius.circular(5),
-              bottomLeft: Radius.circular(5),
-              bottomRight: Radius.circular(5),
+              topLeft: Radius.circular(widget.roundArc),
+              topRight: Radius.circular(widget.roundArc),
+              bottomLeft: Radius.circular(widget.roundArc),
+              bottomRight: Radius.circular(widget.roundArc),
             ),
           ),
         ),
@@ -240,19 +241,16 @@ class _GridPictureSelectWidgetState extends State<GridPictureSelectWidget> with 
 
   Widget getDeleteIcon(int id) {
     double deleteWidthOrHeight = 0;
-    if(widget.crossAxisCount == 2){
-      deleteWidthOrHeight = 20;
-    }else if(widget.crossAxisCount == 3){
-      deleteWidthOrHeight = 20;
-    }else if(widget.crossAxisCount == 4){
-      deleteWidthOrHeight = 20;
-    }else if(widget.crossAxisCount == 5){
-      deleteWidthOrHeight = 20;
-    }else if(widget.crossAxisCount == 5){
-      deleteWidthOrHeight = 20;
-    }else{
-      deleteWidthOrHeight = 20;
-    }
+    double count = widget.count;
+    deleteWidthOrHeight = (25 - (count*1.2)).toDouble();
+
+
+    print("count:"+count.toString());
+
+    print("deleteWidthOrHeight:"+deleteWidthOrHeight.toString());
+
+
+
     return new GestureDetector(
       onTap: () {
         widget.onDeletePress(id);
@@ -260,8 +258,8 @@ class _GridPictureSelectWidgetState extends State<GridPictureSelectWidget> with 
       },
       child: Image.asset(
         'images/icon_image_delete.png',
-        width: 20,
-        height: 20,
+        width: deleteWidthOrHeight,
+        height: deleteWidthOrHeight,
         fit: BoxFit.cover,
       ),
     );
@@ -277,15 +275,13 @@ class _GridPictureSelectWidgetState extends State<GridPictureSelectWidget> with 
           new Container(
             color: const Color(0xFFFFFFFF),
             padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-            margin:  const EdgeInsets.fromLTRB(0, 10, 0, 10),
+            margin:  const EdgeInsets.fromLTRB(0, 0, 0, 0),
             child: new Center(
                 child: new GridView.count(
-                  crossAxisCount: widget.crossAxisCount,
-                  mainAxisSpacing: 0,
-                  //上下间距
-                  crossAxisSpacing: 0,
-                  //左右间距
-                  padding: const EdgeInsets.fromLTRB(14, 0, 0, 0),
+                  crossAxisCount: widget.count.toInt(),
+                  mainAxisSpacing: 0, //上下间距
+                  crossAxisSpacing: 0, //左右间距
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                   primary: false,
                   shrinkWrap: true,
                   children: listWidget,
@@ -296,15 +292,7 @@ class _GridPictureSelectWidgetState extends State<GridPictureSelectWidget> with 
 
 
 
-  void toast(String value) {
-    showToast(value,
-        duration: Duration(seconds: 2),
-        position: ToastPosition.bottom,
-        textDirection: TextDirection.ltr,
-        backgroundColor: Colors.grey,
-        textStyle: new TextStyle(
-          color: Colors.white,
-          fontSize: 14,
-        ));
-  }
+
+
+
 }

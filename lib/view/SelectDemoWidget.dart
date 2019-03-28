@@ -12,7 +12,8 @@ import 'package:flutter_layout_test/refresh/refresh.dart';
 import 'package:flutter_layout_test/util/ListUtil.dart';
 import 'package:flutter_layout_test/util/PermissionUtil.dart';
 import 'package:flutter_layout_test/util/PictureUtil.dart';
-import 'package:flutter_layout_test/view/GridImageSelectWidget.dart';
+import 'package:flutter_layout_test/util/ToastUtil.dart';
+import 'package:flutter_layout_test/view/GridPictureSelectWidget.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:oktoast/oktoast.dart';
@@ -21,7 +22,7 @@ import 'package:simple_permissions/simple_permissions.dart';
 //数据传递
 //原生&flutter互掉
 //常量定义
-const String name1 = 'flutter_widget_demo';
+const String name1 = 'select_demo';
 
 class SelectDemoWidget extends StatefulWidget {
   SelectDemoWidget({Key key, this.title}) : super(key: key);
@@ -130,7 +131,7 @@ class SelectDemoWidgetState extends State<SelectDemoWidget>
               print("requestPermission-WriteExternalStorage$result");
               if (result == PermissionStatus.deniedNeverAsk) {
                 //setting
-                toast('由于用户您选择不在提醒，并且拒绝了权限，请您去系统设置修改相关权限后再进行功能尝试');
+                ToastUtil.toast('由于用户您选择不在提醒，并且拒绝了权限，请您去系统设置修改相关权限后再进行功能尝试');
                 PermissionUtil.openPermissionSetting();
               } else if (result == PermissionStatus.authorized) {
                 Future future2 = new Future(() => null);
@@ -140,7 +141,7 @@ class SelectDemoWidgetState extends State<SelectDemoWidget>
                     print("requestPermission-Camera$result2");
                     if (result2 == PermissionStatus.deniedNeverAsk) {
                       //setting
-                      toast('由于用户您选择不在提醒，并且拒绝了权限，请您去系统设置修改相关权限后再进行功能尝试');
+                      ToastUtil.toast('由于用户您选择不在提醒，并且拒绝了权限，请您去系统设置修改相关权限后再进行功能尝试');
                       PermissionUtil.openPermissionSetting();
                     } else if (result2 == PermissionStatus.authorized) {
                       bottomPicker.showDialog(context);
@@ -159,20 +160,11 @@ class SelectDemoWidgetState extends State<SelectDemoWidget>
     }
   }
 
-  void toast(String value) {
-    showToast(value,
-        duration: Duration(seconds: 2),
-        position: ToastPosition.bottom,
-        textDirection: TextDirection.ltr,
-        backgroundColor: Colors.grey,
-        textStyle: new TextStyle(
-          color: Colors.white,
-          fontSize: 14,
-        ));
-  }
+
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
         appBar: AppBar(
           title: Text(name1),
@@ -180,21 +172,14 @@ class SelectDemoWidgetState extends State<SelectDemoWidget>
         body: new ListView(
           physics: BouncingScrollPhysics(),
           children: <Widget>[
-            GridPictureSelectWidget(
-                context,localImageBeanList, 2, addClick, replaceClick, deleteClick
-            ),
-            GridPictureSelectWidget(
-               context,localImageBeanList, 3, addClick, replaceClick, deleteClick
-            ),
-            GridPictureSelectWidget(
-                context,localImageBeanList, 4, addClick, replaceClick, deleteClick
-            ),
-            GridPictureSelectWidget(
-                context,localImageBeanList, 5, addClick, replaceClick, deleteClick
-            ),
-            GridPictureSelectWidget(
-                context,localImageBeanList, 6, addClick, replaceClick, deleteClick
-            ),
+            GridPictureSelectWidget(localImageBeanList, 2,360,5, addClick, replaceClick, deleteClick),
+            GridPictureSelectWidget(localImageBeanList, 3,360,5, addClick, replaceClick, deleteClick),
+            GridPictureSelectWidget(localImageBeanList, 4,360,5, addClick, replaceClick, deleteClick),
+            GridPictureSelectWidget(localImageBeanList, 5,360,5, addClick, replaceClick, deleteClick),
+            GridPictureSelectWidget(localImageBeanList, 6,360,5, addClick, replaceClick, deleteClick),
+            GridPictureSelectWidget(localImageBeanList, 7,360,5, addClick, replaceClick, deleteClick),
+            GridPictureSelectWidget(localImageBeanList, 8,360,5, addClick, replaceClick, deleteClick),
+
 
           ],
         ));

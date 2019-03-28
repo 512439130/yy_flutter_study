@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_layout_test/bean/TestBean.dart';
+import 'package:flutter_layout_test/bean/ImageBean.dart';
 import 'package:flutter_layout_test/consts/Constant.dart';
 import 'package:flutter_layout_test/util/PictureUtil.dart';
 import 'package:oktoast/oktoast.dart';
@@ -10,17 +10,18 @@ import 'package:oktoast/oktoast.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 
-//常量定义
-const String name1 = 'flutter_grid_image_select';
 
 //图片GridView展示功能
 class GridPictureDisplayWidget extends StatefulWidget {
   BuildContext mContext;
-  TestBean testBean = new TestBean();
-  int crossAxisCount;
+  ImageBean testBean;
+  double count;  //每行个数
+  double maxWidth;//最大宽度
+  double roundArc;//圆角弧度
 
 
-  GridPictureDisplayWidget(this.mContext, this.testBean, this.crossAxisCount);
+
+  GridPictureDisplayWidget(this.mContext, this.testBean, this.count,this.maxWidth,this.roundArc);
   @override
   _GridPictureDisplayWidgetState createState() => _GridPictureDisplayWidgetState();
 }
@@ -34,17 +35,9 @@ class _GridPictureDisplayWidgetState extends State<GridPictureDisplayWidget> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    init();
   }
 //  //初始化
-  void init() {
-    String testJsonValue ='{"datas":[{"id":"1","url":"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1553505918721&di=30abbc97f9b299cad7de51a06cbee078&imgtype=0&src=http%3A%2F%2Fimg15.3lian.com%2F2015%2Ff2%2F57%2Fd%2F93.jpg"},{"id":"2","url":"https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=80538588,251590437&fm=26&gp=0.png"},{"id":"3","url":"https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=3597303668,2750618423&fm=26&gp=0.png"},{"id":"4","url":"https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=61077523,1715146142&fm=26&gp=0.png"},{"id":"5","url":"https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=4087213632,1096565806&fm=26&gp=0.png"},{"id":"6","url":"https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=3597303668,2750618423&fm=26&gp=0.png"}],"resMsg":{"message":"success !","method":null,"code":"1"}}';
-    Map<String, dynamic> json;
-    if (testJsonValue != null) {
-      json = jsonDecode(testJsonValue);
-      widget.testBean = TestBean.fromJson(json);
-    }
-  }
+
 
   void setList() {
     print('setList');
@@ -75,20 +68,17 @@ class _GridPictureDisplayWidgetState extends State<GridPictureDisplayWidget> {
 
 
   Widget getNetImage(int id, bool isVisible, String url) {
-    double imageWidthOrHeight = 0;
-    if(widget.crossAxisCount == 2){
-      imageWidthOrHeight = 160;
-    }else if(widget.crossAxisCount == 3){
-      imageWidthOrHeight = 100;
-    }else if(widget.crossAxisCount == 4){
-      imageWidthOrHeight = 70;
-    }else if(widget.crossAxisCount == 5){
-      imageWidthOrHeight = 55;
-    }else if(widget.crossAxisCount == 6){
-      imageWidthOrHeight = 30;
-    }else{
-      imageWidthOrHeight = 100;
-    }
+    double imageWidthOrHeight;
+    double count = widget.count;
+    double maxWidth = widget.maxWidth;
+    double mItemSpacing = 4;
+    imageWidthOrHeight = (maxWidth/count) - ((count) * (mItemSpacing/count * 2)) - mItemSpacing * 1.5;
+
+
+    print("count:"+count.toString());
+    print("mScreenWidth:"+maxWidth.toString());
+    print("imageWidthOrHeight:"+imageWidthOrHeight.toString());
+
     return new GestureDetector(
       onTap:(){
 //        ImageUtil.openLargeImage(context,url,Constant.image_type_network);
@@ -117,10 +107,10 @@ class _GridPictureDisplayWidgetState extends State<GridPictureDisplayWidget> {
           ),
           //圆角
           borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(5),
-            topRight: Radius.circular(5),
-            bottomLeft: Radius.circular(5),
-            bottomRight: Radius.circular(5),
+            topLeft: Radius.circular(widget.roundArc),
+            topRight: Radius.circular(widget.roundArc),
+            bottomLeft: Radius.circular(widget.roundArc),
+            bottomRight: Radius.circular(widget.roundArc),
           ),
         ),
       ),
@@ -140,15 +130,15 @@ class _GridPictureDisplayWidgetState extends State<GridPictureDisplayWidget> {
           new Container(
             color: const Color(0xFFFFFFFF),
             padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-            margin:  const EdgeInsets.fromLTRB(0, 10, 0, 10),
+            margin:  const EdgeInsets.fromLTRB(0, 0, 0, 0),
             child: new Center(
                 child: new GridView.count(
-                  crossAxisCount: widget.crossAxisCount,
+                  crossAxisCount: widget.count.toInt(),
                   mainAxisSpacing: 0,
                   //上下间距
                   crossAxisSpacing: 0,
                   //左右间距
-                  padding: const EdgeInsets.fromLTRB(14, 0, 0, 0),
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                   primary: false,
                   shrinkWrap: true,
                   children: listWidget,

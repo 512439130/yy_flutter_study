@@ -1,9 +1,12 @@
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_layout_test/consts/Constant.dart';
+import 'package:flutter_layout_test/util/dioHttpUtil.dart';
 import 'package:flutter_layout_test/util/ToastUtil.dart';
+import 'package:path_provider/path_provider.dart';
 
 const String title = '多图片详情';
 const double _kMinFlingVelocity = 500.0; //放大缩小速率
@@ -43,7 +46,7 @@ class TouchImagesViewer extends StatelessWidget {
                 height: 30,
                 textColor: const Color(0xFFFFFFFF),
                 onPressed: () {
-                  ToastUtil.toast('$_selectIndex的图片已保存到/sdcard/.../.../');
+                  saveImage();
                 },
               ),
             ),
@@ -52,6 +55,39 @@ class TouchImagesViewer extends StatelessWidget {
       ),
     );
   }
+  Future saveImage() async {
+    var sdcard = await getExternalStorageDirectory();
+    String sdCardPath = sdcard.path;
+    String directoryPath = sdCardPath + Constant.image_save_path;
+    print("directoryPath:" + directoryPath);
+    var directory = await new Directory(directoryPath)
+        .create(recursive: true); ////如果有子文件夹，需要设置recursive: true
+
+    //absolute返回path为绝对路径的Directory对象
+    String path = directory.absolute.path;
+    print("path:" + path);
+
+    String fileNamePath = path +"$title"+"_"+'$_selectIndex.png';
+    print("fileNamePath:" + fileNamePath);
+    String url = imageUrls[_selectIndex];
+    CancelToken cancelToken = new CancelToken();
+    Response response = await dioHttpUtil().downLoadFile(url,fileNamePath,doLoading(),cancelToken: cancelToken);
+    if(response != null){
+      if(response.statusCode == 200){
+        ToastUtil.toast("保存成功：$fileNamePath");
+      }else{
+        ToastUtil.toast('保存失败:$response.statusCode-$response.data');
+      }
+    }else{
+      ToastUtil.toast('response == null');
+    }
+
+  }
+}
+
+Function doLoading() {
+  new CircularProgressIndicator();
+  return null;
 }
 
 class TouchViewerPage extends StatefulWidget {
@@ -220,7 +256,8 @@ class TouchImagesViewerPage extends State<TouchViewerPage>
                     child: new Image(
                       fit: BoxFit.contain,
                       height: 400,
-                      image: new CachedNetworkImageProvider(widget.imageUrls[index]),
+                      image: new CachedNetworkImageProvider(
+                          widget.imageUrls[index]),
                     ),
                   );
                 }),
@@ -229,7 +266,6 @@ class TouchImagesViewerPage extends State<TouchViewerPage>
       );
     }
   }
-
 
   onPageChanged(index) {
     setState(() {
@@ -244,4 +280,28 @@ class TouchImagesViewerPage extends State<TouchViewerPage>
     _scale = 1.0;
     _offset = new Offset(0.0, 0.0);
   }
+
+
+
+//  static Future<Response> downLoadFile(String url) async {
+//    var sdcard = await getExternalStorageDirectory();
+//    String sdCardPath = sdcard.path;
+//    String directoryPath = sdCardPath + Constant.image_save_path;
+//    print("directoryPath:" + directoryPath);
+//    var directory = await new Directory(directoryPath)
+//        .create(recursive: true); ////如果有子文件夹，需要设置recursive: true
+//
+//    //absolute返回path为绝对路径的Directory对象
+//    String path = directory.absolute.path;
+//    print("path:" + path);
+//    Response response;
+//    try {
+//      Dio dio = new Dio();
+//      String fileName = directory.absolute.path + 'test.jpeg';
+//      response = await dio.download(url, fileName);
+//    } catch (e) {
+//      print(e);
+//    }
+//    return response;
+//  }
 }
