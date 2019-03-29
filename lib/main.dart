@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:english_words/english_words.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_layout_test/demo/DisplayDemoNew.dart';
+import 'package:flutter_layout_test/demo/GridPictureDisplayWidget.dart';
 import 'package:flutter_layout_test/network/network.dart';
 import 'package:flutter_layout_test/other/other.dart';
 import 'package:flutter_layout_test/permission/permission.dart';
@@ -80,6 +82,8 @@ class MyApp extends StatelessWidget {
           '/router/picture/picture_select': (_) => new PictureSelectWidget(),
           '/router/picture/picture_display': (_) => new PictureDisplayWidget(),
           '/router/permission/permission': (_) => new PermissionWidget(),
+
+          '/router/demo/DisplayDemoNew': (_) => new DisplayDemoNewWidget(),
         },
       ),
     );
@@ -145,8 +149,10 @@ class _MyHomePageState extends State<MyHomePage> {
             buildButton("NetworkWidget", Colors.white, Colors.deepOrangeAccent, '/router/network/network'),
             buildButton("PictureSelectWidget", Colors.white, Colors.deepOrangeAccent, '/router/picture/picture_select'),
             buildButton("PictureDisplayWidget", Colors.white, Colors.deepOrangeAccent, '/router/picture/picture_display'),
-            buildButton("PermissionWidget", Colors.white,
-                Colors.deepOrangeAccent, '/router/permission/permission'),
+            buildButton("PermissionWidget", Colors.white,Colors.deepOrangeAccent, '/router/permission/permission'),
+
+
+            buildButton("DisplayDemoNew", Colors.white,Colors.deepOrangeAccent, '/router/demo/DisplayDemoNew'),
           ],
 
         ));

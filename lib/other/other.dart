@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:english_words/english_words.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_layout_test/refresh/refresh.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -30,9 +31,10 @@ class _OtherWidgetState extends State<OtherWidget> {
         ),
         body: new ListView(
           physics: BouncingScrollPhysics(),
+            itemExtent:100,
           children: <Widget>[
-
-            buildButton("控制文本显示和隐藏", Colors.white, Colors.greenAccent, buttonClick1),
+            buildButton(
+                "控制文本显示和隐藏", Colors.white, Colors.greenAccent, buttonClick1),
             new Container(
               margin: const EdgeInsets.only(top: 15.0),
               child: new Offstage(
@@ -51,11 +53,87 @@ class _OtherWidgetState extends State<OtherWidget> {
                 ),
               ),
             ),
+            new Container(
+              margin: EdgeInsets.all(5),
+              child: new Column(
+                children: <Widget>[
+                  new Row(
+                    children: <Widget>[
+                      new Container(
+                        child: new Text("文本"),
+                      ),
+                      new Container(
+                        child: new Text("文本"),
+                      ),
+                      new Container(
+                        child: new Text("文本"),
+                      ),
+//                      new Container(
+//                        width: 1,
+//                        height: 500,
+////                          margin: EdgeInsets.all(2),
+//                        color: Colors.green,
+//                      ),
+                      new Container(
+//                        width: 1,
+                        color: Colors.red,
+                        child: new Row(
+                          mainAxisSize:MainAxisSize.max,
+                          children: <Widget>[
+                            new Container(
+                              width: 1,
+                              height: double.infinity,
+                              color: Colors.red,
+                              child: new Row(
+                                mainAxisSize:MainAxisSize.max,
+
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+//                      new ConstrainedBox(
+//                        constraints: new BoxConstraints(
+//                            minWidth: 0.0,
+//                            maxWidth: double.infinity,
+//                            minHeight: 0.0,
+//                            maxHeight: double.infinity,
+//                        ),
+//                        child: new Container(
+//                          width: 1,
+//                          height: 1500,
+////                          margin: EdgeInsets.all(2),
+//                          color: Colors.green,
+//                        ),
+//
+//                      ),
+
+//                      new Container(
+//                        width: 1,
+//                        height: double.infinity,
+//                        child: new ConstrainedBox(
+//                            child: new Container(
+//                              width: 1,
+//                              height: 2,
+//                              color: Colors.green,
+//                            ),
+//                            constraints: new BoxConstraints.expand()
+//                        ),
+//                      ),
+
+                    ],
+                  )
+                ],
+              ),
+            ),
           ],
         ));
   }
+
   //生成MaterialButton
-  Container buildButton(String value, Color textColor, Color background,Function clickEvent()) {
+  Container buildButton(
+      String value, Color textColor, Color background, Function clickEvent()) {
     return new Container(
       margin: const EdgeInsets.only(top: 15.0),
       child: new MaterialButton(
@@ -69,7 +147,7 @@ class _OtherWidgetState extends State<OtherWidget> {
     );
   }
 
-   Function buttonClick1() {
+  Function buttonClick1() {
     setState(() {
       if (isTestVisible) {
         isTestVisible = false;

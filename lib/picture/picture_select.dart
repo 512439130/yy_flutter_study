@@ -258,7 +258,7 @@ class _PictureSelectWidgetState extends State<PictureSelectWidget> with TickerPr
         //调用delete
       },
       child: Image.asset(
-        'images/icon_image_delete.png',
+        'images/icon_close.png',
         width: 15,
         height: 15,
         fit: BoxFit.cover,

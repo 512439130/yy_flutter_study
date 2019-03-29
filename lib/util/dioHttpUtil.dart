@@ -2,6 +2,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:flutter_layout_test/consts/Constant.dart';
 
 class dioHttpUtil {
   static dioHttpUtil instance;
@@ -16,6 +17,9 @@ class dioHttpUtil {
     }
     return instance;
   }
+
+  static const String GET = 'GET';
+  static const String POST = 'POST';
 
   dioHttpUtil() {
     print('配置dio实例');
@@ -45,7 +49,7 @@ class dioHttpUtil {
 
   }
 
-  requestJsonBody(url, {jsonBody, options, cancelToken}) async {
+  requestJsonBody(url, {jsonBody , cancelToken}) async {
     print('requestJsonBody-url：$url ,body: $jsonBody');
     Response response;
     try {
@@ -53,7 +57,7 @@ class dioHttpUtil {
         url,
         data: jsonBody,
         cancelToken: cancelToken,
-        options: Options(method: options),
+        options: Options(method: POST),
       );
       print('requestJsonBody-success::response.data：${response.data}');
     } on DioError catch (e) {
@@ -64,6 +68,28 @@ class dioHttpUtil {
     }
     return response;
   }
+
+  requestFormData(url, {formData, cancelToken}) async {
+    print('requestJsonBody-url：$url ,formData: $formData');
+    Response response;
+    try {
+      response = await dio.request(
+        url,
+        data: formData,
+        cancelToken: cancelToken,
+        //只有 post 方法支持发送 FormData
+        options: Options(method: POST),
+      );
+      print('requestJsonBody-success::response.data：${response.data}');
+    } on DioError catch (e) {
+      if (CancelToken.isCancel(e)) {
+        print('requestJsonBody-cancel! ' + e.message);
+      }
+      print('requestJsonBody-error::$e');
+    }
+    return response;
+  }
+
   doPost(url, {cancelToken}) async {
     print('doPost-url：$url ');
     Response response;

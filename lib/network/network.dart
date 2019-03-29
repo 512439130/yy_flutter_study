@@ -40,11 +40,12 @@ class _NetworkWidgetState extends State<NetworkWidget> {
         body: new ListView(
           physics: BouncingScrollPhysics(),
           children: <Widget>[
-            buildButton("getDataRequestGET", Colors.black, Colors.greenAccent, click1),
-            buildButton("getDataRequestPOST", Colors.black, Colors.greenAccent, click2),
-            buildButton("getDataJosnBody", Colors.black, Colors.greenAccent, click3),
-            buildButton("obtainPermission", Colors.black, Colors.greenAccent, click4),
-            buildButton("downLoadFile", Colors.black, Colors.greenAccent, click5),
+            buildButton("requestGET", Colors.black, Colors.greenAccent, requestGETClick),
+            buildButton("requestPOST", Colors.black, Colors.greenAccent, requestPOSTClick),
+            buildButton("requestJsonBody", Colors.black, Colors.greenAccent, requestJsonBodyClick),
+            buildButton("requestFormData", Colors.black, Colors.greenAccent, requestFormDataClick),
+            buildButton("obtainPermission", Colors.black, Colors.greenAccent, obtainPermissionClick),
+            buildButton("downLoadFile", Colors.black, Colors.greenAccent, downLoadFileClick),
             new Text(lineText),
           ],
         ));
@@ -66,31 +67,193 @@ class _NetworkWidgetState extends State<NetworkWidget> {
     );
   }
 
-  Function click1() {
-    getDataRequestGET();
+  Function requestGETClick() {
+    requestGET();
     return null;
   }
 
-  Function click2() {
-    getDataRequestPOST();
+  Function requestPOSTClick() {
+    requestPOST();
     return null;
   }
 
-  Function click3() {
-
-    getDataJosnBody();
+  Function requestJsonBodyClick() {
+    requestJsonBody();
     return null;
   }
 
-  Function click4() {
+  Function requestFormDataClick() {
+    requestFormData();
+    return null;
+  }
+
+  Function obtainPermissionClick() {
     obtainPermission();
 
     return null;
   }
 
-  Function click5() {
+  Function downLoadFileClick() {
     downLoadFile();
     return null;
+  }
+
+
+
+
+  Future requestPOST() async {
+    String url = 'https://www.zbg.com/exchange/config/controller/website/MarketController/getMarketAreaListByWebId';
+    CancelToken cancelToken = new CancelToken();
+    Response response = await dioHttpUtil().doPost(url,cancelToken: cancelToken);
+    if(response != null){
+      if(response.statusCode == 200){
+        ToastUtil.toast("请求成功");
+        setState(() {
+          lineText = response.data.toString();
+        });
+      }else{
+        ToastUtil.toast('request-error:$response.statusCode-$response.data');
+      }
+    }else{
+      ToastUtil.toast('response == null');
+    }
+
+  }
+
+  Future requestGET() async {
+    String url = 'https://www.zbg.com/exchange/config/controller/website/MarketController/getMarketAreaListByWebId';
+    CancelToken cancelToken = new CancelToken();
+    Response response = await dioHttpUtil().doGet(url,cancelToken: cancelToken);
+    if(response != null){
+      if(response.statusCode == 200){
+        ToastUtil.toast("请求成功");
+        setState(() {
+          lineText = response.data.toString();
+        });
+      }else{
+        ToastUtil.toast('request-error:$response.statusCode-$response.data');
+      }
+    }else{
+      ToastUtil.toast('response == null');
+    }
+
+  }
+
+
+
+
+
+
+  Future<void> obtainPermission() async {
+    try {
+      await Future.delayed(Duration(milliseconds: 500), () {
+        setState(() {
+          Future future1 = new Future(() => null);
+          future1.then((_) {
+            PermissionUtil.requestPermission(Permission.WriteExternalStorage)
+                .then((result) {
+              print("requestPermission-WriteExternalStorage$result");
+              if (result == PermissionStatus.deniedNeverAsk) {
+                //setting
+                ToastUtil.toast('由于用户您选择不在提醒，并且拒绝了权限，请您去系统设置修改相关权限后再进行功能尝试');
+                PermissionUtil.openPermissionSetting();
+              } else if (result == PermissionStatus.authorized) {
+                Future future2 = new Future(() => null);
+                future2.then((_) {
+                  PermissionUtil.requestPermission(Permission.ReadExternalStorage)
+                      .then((result2) {
+                    print("ReadExternalStorage-Camera$result2");
+                    if (result2 == PermissionStatus.deniedNeverAsk) {
+                      //setting
+                      ToastUtil.toast('由于用户您选择不在提醒，并且拒绝了权限，请您去系统设置修改相关权限后再进行功能尝试');
+                      PermissionUtil.openPermissionSetting();
+                    } else if (result2 == PermissionStatus.authorized) {
+                      ToastUtil.toast('权限获取成功');
+                    }
+                  });
+                });
+
+              }
+            });
+          });
+        });
+      });
+    } catch (e) {
+      print("faild:$e.toString()");
+    }
+  }
+
+
+
+
+  Future requestJsonBody() async {
+    String url = 'https://www.zbg.com/exchange/config/controller/website/MarketController/getMarketAreaListByWebId';
+    var jsonBody = '{\'pageIndex\': 1, \'pageSize\': 10}';
+    print('jsonBody:'+jsonBody);
+    CancelToken cancelToken = new CancelToken();
+    Response response = await dioHttpUtil().requestJsonBody(url, jsonBody: jsonBody,cancelToken: cancelToken);
+    if(response != null){
+      if(response.statusCode == 200){
+        ToastUtil.toast("请求成功");
+        setState(() {
+          lineText = response.data.toString();
+        });
+      }else{
+        ToastUtil.toast('request-error:$response.statusCode-$response.data');
+      }
+    }else{
+      ToastUtil.toast('response == null');
+    }
+  }
+
+
+  //请求数据将会以 multipart/form-data方式编码, FormData中可以一个或多个包含文件
+  Future requestFormData() async {
+    String url = 'https://www.zbg.com/exchange/config/controller/website/MarketController/getMarketAreaListByWebId';
+
+
+//    //1。FormData上传单个文件
+//    FormData formData = new FormData.from({
+//      "name": "wendux",
+//      "age": 25,
+//      "file": new UploadFileInfo(new File("./example/upload.txt"), "upload.txt")
+//    });
+//
+//    //2.FormData上传组文件
+//    FormData formData = new FormData.from({
+//      "name": "wendux",
+//      "age": 25,
+//      "file1": new UploadFileInfo(new File("./upload.txt"), "upload1.txt"),
+//      "file2": new UploadFileInfo(new File("./upload.txt"), "upload2.txt"),
+//      // 支持文件数组上传
+//      "files": [
+//        new UploadFileInfo(new File("./example/upload.txt"), "upload.txt"),
+//        new UploadFileInfo(new File("./example/upload.txt"), "upload.txt")
+//      ]
+//    });
+    //FormData只携带数据
+    FormData formData = new FormData.from({
+      "name": "wendux",
+      "age": 25,
+    });
+
+
+
+
+    CancelToken cancelToken = new CancelToken();
+    Response response = await dioHttpUtil().requestFormData(url, formData: formData,cancelToken: cancelToken);
+    if(response != null){
+      if(response.statusCode == 200){
+        ToastUtil.toast("请求成功");
+        setState(() {
+          lineText = response.data.toString();
+        });
+      }else{
+        ToastUtil.toast('request-error:$response.statusCode-$response.data');
+      }
+    }else{
+      ToastUtil.toast('response == null');
+    }
   }
 
 
@@ -147,107 +310,6 @@ class _NetworkWidgetState extends State<NetworkWidget> {
     print("sd卡目录："+ sdCardPath);
 
   }
-
-  Future<void> obtainPermission() async {
-    try {
-      await Future.delayed(Duration(milliseconds: 500), () {
-        setState(() {
-          Future future1 = new Future(() => null);
-          future1.then((_) {
-            PermissionUtil.requestPermission(Permission.WriteExternalStorage)
-                .then((result) {
-              print("requestPermission-WriteExternalStorage$result");
-              if (result == PermissionStatus.deniedNeverAsk) {
-                //setting
-                ToastUtil.toast('由于用户您选择不在提醒，并且拒绝了权限，请您去系统设置修改相关权限后再进行功能尝试');
-                PermissionUtil.openPermissionSetting();
-              } else if (result == PermissionStatus.authorized) {
-                Future future2 = new Future(() => null);
-                future2.then((_) {
-                  PermissionUtil.requestPermission(Permission.ReadExternalStorage)
-                      .then((result2) {
-                    print("ReadExternalStorage-Camera$result2");
-                    if (result2 == PermissionStatus.deniedNeverAsk) {
-                      //setting
-                      ToastUtil.toast('由于用户您选择不在提醒，并且拒绝了权限，请您去系统设置修改相关权限后再进行功能尝试');
-                      PermissionUtil.openPermissionSetting();
-                    } else if (result2 == PermissionStatus.authorized) {
-                      ToastUtil.toast('权限获取成功');
-                    }
-                  });
-                });
-
-              }
-            });
-          });
-        });
-      });
-    } catch (e) {
-      print("faild:$e.toString()");
-    }
-  }
-
-
-
-
-  Future getDataJosnBody() async {
-    String url = 'https://www.zbg.com/exchange/config/controller/website/MarketController/getMarketAreaListByWebId';
-    var jsonBody = {'pageIndex': 1, 'pageSize': 10};
-    CancelToken cancelToken = new CancelToken();
-    Response response = await dioHttpUtil().requestJsonBody(url, jsonBody: jsonBody,options: Constant.post,cancelToken: cancelToken);
-    if(response != null){
-      if(response.statusCode == 200){
-        ToastUtil.toast("请求成功");
-        setState(() {
-          lineText = response.data.toString();
-        });
-      }else{
-        ToastUtil.toast('request-error:$response.statusCode-$response.data');
-      }
-    }else{
-      ToastUtil.toast('response == null');
-    }
-  }
-
-  Future getDataRequestPOST() async {
-    String url = 'https://www.zbg.com/exchange/config/controller/website/MarketController/getMarketAreaListByWebId';
-    CancelToken cancelToken = new CancelToken();
-    Response response = await dioHttpUtil().doPost(url,cancelToken: cancelToken);
-    if(response != null){
-      if(response.statusCode == 200){
-        ToastUtil.toast("请求成功");
-        setState(() {
-          lineText = response.data.toString();
-        });
-      }else{
-        ToastUtil.toast('request-error:$response.statusCode-$response.data');
-      }
-    }else{
-      ToastUtil.toast('response == null');
-    }
-
-  }
-
-  Future getDataRequestGET() async {
-    String url = 'https://www.zbg.com/exchange/config/controller/website/MarketController/getMarketAreaListByWebId';
-    CancelToken cancelToken = new CancelToken();
-    Response response = await dioHttpUtil().doGet(url,cancelToken: cancelToken);
-    if(response != null){
-      if(response.statusCode == 200){
-        ToastUtil.toast("请求成功");
-        setState(() {
-          lineText = response.data.toString();
-        });
-      }else{
-        ToastUtil.toast('request-error:$response.statusCode-$response.data');
-      }
-    }else{
-      ToastUtil.toast('response == null');
-    }
-
-  }
-
-
 
 
 }

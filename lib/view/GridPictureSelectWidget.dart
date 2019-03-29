@@ -2,19 +2,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_layout_test/bean/LocalImageBean.dart';
-import 'package:flutter_layout_test/consts/Constant.dart';
 import 'package:flutter_layout_test/dialog/BottomPickerHandler.dart';
 import 'package:flutter_layout_test/dialog/ProgressDialog.dart';
 import 'package:flutter_layout_test/util/ListUtil.dart';
-import 'package:flutter_layout_test/util/PictureUtil.dart';
-import 'package:oktoast/oktoast.dart';
 
-import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:english_words/english_words.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_layout_test/refresh/refresh.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 
 
@@ -257,7 +248,7 @@ class _GridPictureSelectWidgetState extends State<GridPictureSelectWidget> with 
         //调用delete
       },
       child: Image.asset(
-        'images/icon_image_delete.png',
+        'images/icon_close.png',
         width: deleteWidthOrHeight,
         height: deleteWidthOrHeight,
         fit: BoxFit.cover,
